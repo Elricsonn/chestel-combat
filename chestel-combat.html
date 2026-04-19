@@ -1691,70 +1691,186 @@ var POSTURE_TABLE = [[-2,-1,0],[-1,0,1],[0,1,2]];
 // ============================================================
 
 var NARR = {
+  // === ATTAQUES RÉUSSIES (génériques + par type d'arme) ===
   attackHit: [
-    "D'un geste vif, [attacker] porte un coup décisif.",
-    "Le coup atteint sa cible avec une précision redoutable.",
-    "[attacker] frappe avec une violence inouïe.",
-    "L'impact résonne dans le silence oppressant de l'Intracos."
+    "D'un geste vif, [attacker] porte un coup décisif avec [weapon].",
+    "Le coup de [weapon] atteint sa cible avec une précision redoutable.",
+    "[attacker] frappe avec [weapon]. L'impact est violent.",
+    "L'impact de [weapon] résonne dans le silence oppressant de l'Intracos.",
+    "[attacker] ajuste son coup. [weapon] trouve sa cible.",
+    "Un mouvement fulgurant. [weapon] s'abat sur [defender].",
+    "[attacker] ne laisse aucune chance — [weapon] fait mouche.",
+    "Le coup est porté avec détermination. [weapon] transperce la garde de [defender].",
+    "Dans un élan désespéré, [attacker] frappe avec [weapon]. Le coup porte !",
+    "[defender] n'a pas le temps de réagir. [weapon] le touche de plein fouet.",
+    "À travers le brouillard de l'Intracos, [weapon] trouve sa cible avec une précision chirurgicale.",
+    "[attacker] profite d'une ouverture et abat [weapon] sans hésiter."
   ],
+  attackHitExceptional: [
+    "MAGISTRAL ! [attacker] porte un coup d'une violence extraordinaire avec [weapon] !",
+    "[attacker] frappe avec [weapon] d'une manière qui défie les lois de l'Intracos. Coup exceptionnel !",
+    "Un coup parfait ! [weapon] atteint [defender] exactement là où ça fait le plus mal.",
+    "Les Soigneurs n'en croient pas leurs yeux. [weapon] frappe avec une puissance inouïe !",
+    "[attacker] canalise toute sa rage dans [weapon]. Le résultat est dévastateur."
+  ],
+
+  // === ATTAQUES RATÉES (génériques + par contexte) ===
   attackMiss: [
-    "L'attaque fend l'air sans atteindre sa cible.",
-    "[attacker] manque son adversaire d'un cheveu.",
-    "Le coup se perd dans le vide — trop lent, trop prévisible.",
-    "Un geste maladroit. L'ouverture est manquée."
+    "L'attaque de [attacker] fend l'air sans atteindre sa cible.",
+    "[attacker] manque [defender] d'un cheveu avec [weapon].",
+    "Le coup de [weapon] se perd dans le vide — trop lent, trop prévisible.",
+    "Un geste maladroit. [weapon] ne rencontre que le vide.",
+    "[attacker] tente une attaque avec [weapon], mais [defender] esquive au dernier moment.",
+    "[weapon] siffle dans l'air. Raté. [defender] a bougé juste à temps.",
+    "[attacker] perd l'équilibre en frappant avec [weapon]. L'ouverture est manquée.",
+    "Le brouillard de l'Intracos brouille la perception de [attacker]. Le coup manque sa cible.",
+    "[defender] se décale au dernier instant. [weapon] ne fait qu'effleurer l'air.",
+    "Un éclair de lucidité de [defender] — l'attaque de [attacker] ne touche que le néant.",
+    "[attacker] frappe trop haut. [weapon] passe au-dessus de [defender].",
+    "La fatigue se fait sentir. [attacker] rate son coup avec [weapon]."
   ],
+
+  // === BLESSURES (enrichies, avec contexte arme) ===
   woundB1: [
-    "Une griffure. Le sang perle à peine.",
-    "Blessure superficielle — plus de peur que de mal."
+    "Une griffure superficielle. Le sang perle à peine.",
+    "Blessure légère — plus de peur que de mal. [victim] grimace mais tient bon.",
+    "[weapon] laisse une marque, rien de plus. [victim] peut continuer.",
+    "Une éraflure. [victim] essuie le sang d'un revers de main.",
+    "Le coup de [weapon] n'a fait qu'effleurer [victim]. Blessure mineure.",
+    "Un bleu, peut-être une entaille superficielle. [victim] a eu de la chance."
   ],
   woundB2: [
-    "La douleur est vive. La blessure saigne abondamment.",
-    "Un coup sérieux, mais [victim] tient encore debout."
+    "La douleur est vive. [weapon] a laissé une blessure qui saigne abondamment.",
+    "Un coup sérieux de [weapon], mais [victim] tient encore debout.",
+    "[victim] accuse le coup. La blessure de [weapon] est sérieuse mais pas mortelle.",
+    "Le sang coule. [weapon] a fait des dégâts. [victim] serre les dents.",
+    "[victim] chancelle sous l'impact de [weapon]. La blessure est préoccupante.",
+    "Une entaille profonde. [victim] porte la main à sa blessure — ça saigne beaucoup."
   ],
   woundB3: [
-    "Un craquement sinistre. [victim] grimace de douleur.",
-    "La blessure est profonde. Chaque mouvement est une torture."
+    "Un craquement sinistre. [weapon] a fait des dégâts graves. [victim] grimace de douleur.",
+    "La blessure de [weapon] est profonde. Chaque mouvement est une torture pour [victim].",
+    "[victim] pousse un cri. [weapon] a touché quelque chose de vital.",
+    "Le sang jaillit. [weapon] a infligé une blessure grave à [victim]. Le combat tourne mal.",
+    "[victim] vacille dangereusement. La blessure causée par [weapon] est terrible.",
+    "Les chairs se déchirent sous l'impact de [weapon]. [victim] peut à peine bouger."
   ],
   woundB4: [
-    "[victim] s'effondre, incapable de se relever.",
-    "Le corps lâche. Hors combat."
+    "[victim] s'effondre sous l'impact de [weapon], incapable de se relever.",
+    "Le corps de [victim] lâche. [weapon] a mis fin au combat.",
+    "[weapon] porte le coup de grâce. [victim] s'écroule, hors combat.",
+    "[victim] tombe à genoux, puis face contre terre. [weapon] l'a mis hors d'état de nuire.",
+    "C'est fini pour [victim]. [weapon] a fait son œuvre. Plus aucun mouvement.",
+    "Un dernier gémissement. [victim] s'effondre après le coup dévastateur de [weapon]."
   ],
   woundB5: [
-    "L'agonie. [victim] s'écroule dans une mare de sang.",
-    "C'est la fin. Sans intervention immédiate, la mort est certaine."
+    "L'agonie. [weapon] a porté un coup fatal. [victim] s'écroule dans une mare de sang.",
+    "C'est la fin. [weapon] a tué. Sans intervention immédiate, [victim] va mourir.",
+    "[victim] s'effondre. [weapon] a infligé une blessure mortelle. Le silence retombe.",
+    "Un coup mortel de [weapon]. [victim] gît au sol, les yeux dans le vide. L'Intracos frémit.",
+    "Le dernier souffle. [weapon] a mis fin à l'existence de [victim] dans cet Intracos.",
+    "[victim] s'écroule lentement. [weapon] a frappé là où il ne fallait pas. C'est terminé."
   ],
+
+  // === ENCAISSEMENT (enrichi) ===
   encReduce: [
-    "[victim] serre les dents et encaisse. La blessure est moins grave que prévu."
+    "[victim] serre les dents et encaisse. La blessure est moins grave que prévu.",
+    "Par miracle, [victim] résiste au choc. La blessure se révèle superficielle.",
+    "[victim] encaisse le coup avec stoïcisme. Son corps absorbe une partie de l'impact.",
+    "La constitution robuste de [victim] fait la différence. La blessure est atténuée.",
+    "Un sursaut de volonté. [victim] refuse de céder. La blessure est réduite.",
+    "[victim] a de la ressource. Le coup qui semblait dévastateur est finalement supportable."
   ],
   encNormal: [
-    "Le coup fait son effet. Ni plus, ni moins."
+    "Le coup fait son effet sur [victim]. Ni plus, ni moins.",
+    "[victim] encaisse. La douleur est là, exacte, sans surprise.",
+    "L'impact est conforme à ce qu'on pouvait craindre. [victim] accuse le coup.",
+    "[victim] absorbe le choc comme il vient. La blessure reste ce qu'elle est.",
+    "Pas de miracle, pas d'aggravation. [victim] doit faire avec cette blessure.",
+    "Le corps de [victim] réagit normalement. La blessure suit son cours."
   ],
   encAggrav: [
-    "Le choc est pire qu'il n'y paraît. La blessure s'aggrave dangereusement."
+    "Le choc est pire qu'il n'y paraît. La blessure de [victim] s'aggrave dangereusement !",
+    "[victim] titube. Le coup a fait plus de dégâts que prévu — la blessure empire.",
+    "Mauvaise nouvelle pour [victim]. Le corps ne tient pas. La blessure s'aggrave.",
+    "[victim] tousse du sang. L'impact a causé des dommages internes. C'est grave.",
+    "Le corps de [victim] cède sous la douleur. La blessure vient de monter d'un cran.",
+    "Ça ne va pas du tout. [victim] pâlit visiblement. La blessure s'est aggravée."
   ],
+
+  // === CATASTROPHE (score de 2) ===
   catastrophe: [
-    "CATASTROPHE ! Un enchaînement de malchances invraisemblable.",
-    "Tout va de travers. Le sol se dérobe sous ses pieds.",
-    "Le pire scénario possible se réalise sous les yeux horrifiés des Soigneurs."
+    "CATASTROPHE ! [attacker] glisse et manque complètement son coup. Humiliation totale.",
+    "Tout va de travers pour [attacker]. Le sol se dérobe, l'arme échappe des mains.",
+    "Le pire scénario possible se réalise sous les yeux horrifiés des Soigneurs. [attacker] est en difficulté.",
+    "[attacker] trébuche au pire moment. L'Intracos semble se retourner contre lui.",
+    "Un enchaînement de malchances invraisemblable frappe [attacker]. Score de 2 — catastrophe !",
+    "L'univers mental conspire contre [attacker]. Rien ne fonctionne. Catastrophe !",
+    "[attacker] perd ses repères dans le brouillard de l'Intracos. Score catastrophique.",
+    "Un bruit strident résonne. [attacker] est désorienté. Son action est un désastre."
   ],
+
+  // === SCORE DE 12 ===
   nat12: [
-    "Un coup PARFAIT ! La réalité même de l'Intracos semble se plier à cette action.",
-    "Score de 12 ! L'impossible devient possible."
+    "Un coup PARFAIT ! La réalité même de l'Intracos semble se plier à l'action de [attacker].",
+    "Score de 12 ! L'impossible devient possible pour [attacker]. L'Intracos vibre.",
+    "[attacker] entre en communion avec l'Intracos. Un score parfait — le destin lui sourit.",
+    "Les lois de la physique se plient. [attacker] accomplit l'impensable. Score de 12 !",
+    "Un moment de grâce pure. [attacker] transcende les limites de l'Intracos. Perfection.",
+    "L'air crépite d'énergie. [attacker] réalise un exploit qui restera gravé dans l'Intracos."
   ],
+
+  // === CHANGEMENT D'ARME ===
   weaponChange: [
-    "[name] laisse tomber son arme et en saisit une autre. Ce round est perdu à préparer son équipement."
+    "[name] laisse tomber son arme et en saisit une autre. Ce round est perdu à préparer son équipement.",
+    "[name] change d'arme. Le temps de dégainer, le round est déjà terminé.",
+    "[name] fouille frénétiquement pour trouver une autre arme. Pas d'action ce tour-ci.",
+    "Un bruit métallique — [name] jette son arme et en attrape une nouvelle. Round perdu.",
+    "[name] décide de changer de tactique. Le temps de s'équiper, l'adversaire a l'avantage."
   ],
+
+  // === FIN DE ROUND ===
   roundEnd: [
-    "Fin du round [n]. Les deux combattants reprennent leur souffle.",
-    "Le combat fait rage. L'issue reste incertaine.",
-    "Round [n] terminé. La tension est palpable dans l'Intracos."
+    "Fin du round [n]. Les deux combattants reprennent leur souffle dans l'obscurité de l'Intracos.",
+    "Le combat fait rage. L'issue reste incertaine. Round [n] terminé.",
+    "Round [n] terminé. La tension est palpable dans l'Intracos. Le brouillard s'épaissit.",
+    "Les échos du combat résonnent dans les couloirs de l'Intracos. Fin du round [n].",
+    "Round [n]. Le sang et la sueur marquent le sol. Personne ne lâche.",
+    "Un silence pesant s'installe brièvement. Round [n] terminé. Le prochain sera décisif ?",
+    "Les ombres dansent sur les murs de l'Intracos. Round [n] achevé.",
+    "La sirène hurle au loin. Round [n] terminé. Le cauchemar continue.",
+    "Fin du round [n]. La rouille suinte des murs. L'Intracos se transforme lentement.",
+    "Round [n]. Les deux adversaires se jaugent, couverts de blessures. Rien n'est joué."
   ],
+
+  // === VICTOIRE ===
   winGeneric: [
     "[winner] se dresse au-dessus de [loser]. L'Intracos tremble.",
-    "[winner] pousse un cri de victoire. [loser] est à terre.",
+    "[winner] pousse un cri de victoire. [loser] est à terre, immobile.",
     "C'est terminé. [loser] ne peut plus combattre. [winner] l'emporte.",
     "[loser] s'effondre. [winner] reste debout, seul maître du terrain.",
-    "Le silence retombe sur l'Intracos. [loser] gît au sol, immobile."
+    "Le silence retombe sur l'Intracos. [loser] gît au sol, vaincu.",
+    "La menace est neutralisée. [winner] peut souffler... pour l'instant.",
+    "Un dernier râle de [loser]. [winner] contemple sa victoire dans le brouillard sanglant.",
+    "L'Intracos se calme. [loser] ne bouge plus. [winner] a survécu... cette fois.",
+    "Le combat est fini. [winner] vacille mais reste debout. [loser] ne se relèvera pas.",
+    "Les murs cessent de suinter. [loser] est vaincu. [winner] reprend son souffle dans le silence."
+  ],
+
+  // === INITIATIVE ===
+  initFirst: [
+    "Plus rapide, [first] porte le premier coup !",
+    "[first] prend l'avantage et frappe en premier.",
+    "L'initiative revient à [first]. Son adversaire n'a pas le temps de réagir.",
+    "[first] anticipe le mouvement de [second] et attaque en premier.",
+    "D'un bond, [first] se jette sur [second] avant que celui-ci ne puisse agir."
+  ],
+  initSimultaneous: [
+    "Les deux adversaires frappent au même instant !",
+    "Actions simultanées — les coups sont échangés dans le même souffle.",
+    "Aucun des deux ne recule. Ils frappent en même temps !",
+    "Un échange brutal et simultané. Les deux combattants donnent tout.",
+    "Pas de priorité — les deux attaques fusent au même moment."
   ]
 };
 
@@ -1868,6 +1984,25 @@ function renderWoundPenalty(wounds) {
   var idx = highestWoundIndex(wounds);
   if (idx < 0) return '';
   return 'Blessure actuelle : ' + BLESS_NAMES[idx] + ' (' + BLESS_THRESHOLDS[idx] + ') — tout jet \u2264 ' + BLESS_THRESHOLDS[idx] + ' échoue';
+}
+
+function weaponLabel(weaponKey) {
+  if (!weaponKey || !WEAPON_DATA[weaponKey]) return 'son arme';
+  var labels = {
+    'poing-faible': 'ses poings', 'poing-moyen': 'ses poings', 'poing-fort': 'ses poings',
+    'baton': 'son bâton', 'chandelier': 'le chandelier', 'couteau': 'son couteau',
+    'grand-couteau': 'son grand couteau', 'epee': 'son épée', 'fronde': 'sa fronde',
+    'pistolet-petit': 'son pistolet', 'pistolet-moyen': 'son arme de poing',
+    'pistolet-gros': 'son arme lourde', 'arme-guerre': 'son arme de guerre',
+    'griffes-monstre': 'ses griffes',
+    'lying-slam': 'son corps', 'lying-acid-spit': 'son crachat d\'acide',
+    'lying-acid-spray': 'sa brume acide', 'lying-grab': 'sa saisie',
+    'mannequin-slam': 'ses jambes', 'nurse-pipe': 'son tuyau en acier',
+    'nurse-syringe': 'sa seringue', 'nurse-gun': 'son pistolet en plomb',
+    'daddy-slam': 'son poids écrasant', 'daddy-grab': 'sa saisie mortelle',
+    'pyramid-blade': 'son Grand Couteau', 'pyramid-spear': 'sa Grande Lance'
+  };
+  return labels[weaponKey] || WEAPON_DATA[weaponKey].label || 'son arme';
 }
 
 function getChocLevel(weapon, forVal) {
@@ -2401,8 +2536,8 @@ function buildDamageSection(action, letter) {
 
   if (!action.success) {
     html += '<div class="damage-section"><h3>' + letter + ') Action de ' + esc(action.attacker.name) + '</h3>';
-    html += '<div class="damage-row"><span class="dmg-tag tag-rien">Raté</span><span class="dmg-desc">' + narr('attackMiss', { attacker: action.attacker.name }) + '</span></div></div>';
-    state._narrativeLines.push(narr('attackMiss', { attacker: action.attacker.name }));
+    html += '<div class="damage-row"><span class="dmg-tag tag-rien">Raté</span><span class="dmg-desc">' + narr('attackMiss', { attacker: action.attacker.name, defender: action.defender.name, weapon: weaponLabel(action.attacker.weapon) }) + '</span></div></div>';
+    state._narrativeLines.push(narr('attackMiss', { attacker: action.attacker.name, defender: action.defender.name, weapon: weaponLabel(action.attacker.weapon) }));
     setTimeout(function() { advancePhase(); }, 0);
     return html;
   }
@@ -2427,7 +2562,7 @@ function buildDamageSection(action, letter) {
   html += '<div class="damage-section"><h3>' + letter + ') ' + esc(action.attacker.name) + ' &#8594; ' + esc(action.defender.name) + '</h3>';
 
   // Narrative
-  state._narrativeLines.push(narr('attackHit', { attacker: action.attacker.name }));
+  state._narrativeLines.push(narr(action.fr > 4 ? 'attackHitExceptional' : 'attackHit', { attacker: action.attacker.name, defender: action.defender.name, weapon: weaponLabel(action.attacker.weapon) }));
 
   // Show damage
   if (chocLevel > 0) {
@@ -2442,7 +2577,7 @@ function buildDamageSection(action, letter) {
     // Wound description narrative
     var wKey = 'woundB' + blessLevel;
     if (NARR[wKey]) {
-      var wNarr = narr(wKey, { victim: action.defender.name });
+      var wNarr = narr(wKey, { victim: action.defender.name, weapon: weaponLabel(action.attacker.weapon) });
       html += '<span class="dmg-desc">' + wNarr + '</span>';
       state._narrativeLines.push(wNarr);
     }
@@ -2541,7 +2676,7 @@ function applyEncaissement(prefix) {
       action.defender.isDown = true;
       neutralized = true;
     }
-    var wNarr5 = narr('woundB5', { victim: action.defender.name });
+    var wNarr5 = narr('woundB5', { victim: action.defender.name, weapon: weaponLabel(action.attacker.weapon) });
     state._narrativeLines.push(wNarr5);
   } else if (action.defender.wounds[3] >= 1) {
     var isSimultaneous = (state._firstFR === state._secondFR);
@@ -2554,7 +2689,7 @@ function applyEncaissement(prefix) {
       action.defender.isDown = true;
       neutralized = true;
     }
-    var wNarr4 = narr('woundB4', { victim: action.defender.name });
+    var wNarr4 = narr('woundB4', { victim: action.defender.name, weapon: weaponLabel(action.attacker.weapon) });
     state._narrativeLines.push(wNarr4);
   }
 
