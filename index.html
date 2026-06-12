@@ -1194,6 +1194,72 @@
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: var(--bg); }
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* === MULTI-COMBAT === */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+  .camp-divider {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: 'Cinzel', serif;
+    letter-spacing: 0.15em;
+    font-size: 13px;
+    text-transform: uppercase;
+    margin: 6px 0 -6px;
+  }
+  .camp-divider::before, .camp-divider::after {
+    content: ''; flex: 1; height: 1px; background: var(--border);
+  }
+  .camp-divider.camp-x { color: var(--red2); }
+  .camp-divider.camp-y { color: var(--teal2); }
+  .roster-list { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+  .roster-row { display: flex; gap: 8px; align-items: flex-start; }
+  .roster-row .roster-main { flex: 1; }
+  .roster-row select { width: 100%; }
+  .roster-remove {
+    background: rgba(200,40,40,0.12); border: 1px solid var(--border); color: var(--red2);
+    border-radius: 4px; width: 36px; height: 38px; cursor: pointer; flex: none; font-size: 16px; line-height: 1;
+  }
+  .roster-remove:hover { border-color: var(--red2); }
+  .btn-add {
+    margin-top: 12px; width: 100%; background: rgba(212,175,110,0.07);
+    border: 1px dashed var(--border); color: var(--gold); border-radius: 6px;
+    padding: 10px; cursor: pointer; font-family: inherit; letter-spacing: 0.05em; font-size: 13px;
+  }
+  .btn-add:hover { border-color: var(--gold); }
+  .roster-mini { font-size: 11px; color: var(--text2); margin-top: 6px; line-height: 1.4; padding-left: 2px; }
+  .card-tohit-wrap { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
+  .card-tohit-wrap .dice-score-label { margin-bottom: 6px; }
+  .card-tohit-wrap .dice-score-input { width: 100%; }
+  .card-target-creature { font-size: 11px; color: var(--text2); margin-top: 4px; }
+  .action-skip {
+    padding: 10px 14px; border: 1px solid var(--border); border-radius: 6px;
+    color: var(--text2); font-family: 'Share Tech Mono', monospace; font-size: 13px; margin: 8px 0;
+  }
+  .tips-block { margin: -2px 0 14px; }
+  .tips-toggle {
+    background: rgba(224,80,80,0.08); border: 1px solid rgba(224,80,80,0.25); color: var(--red2);
+    border-radius: 5px; padding: 5px 10px; cursor: pointer; font-family: inherit;
+    font-size: 11px; letter-spacing: 0.05em; width: 100%;
+  }
+  .tips-toggle:hover { border-color: var(--red2); }
+  .tips-panel {
+    margin-top: 10px; padding: 12px; border: 1px solid rgba(224,80,80,0.25); border-radius: 6px;
+    background: rgba(224,80,80,0.05);
+  }
+  .tips-panel .creature-card-type { color: var(--red2); margin-bottom: 6px; }
+  .tips-panel .creature-card-desc { color: var(--red2); font-style: italic; margin-bottom: 8px; }
+  .tips-panel .creature-power-tag {
+    display: inline-block; margin: 3px 4px 0 0; padding: 3px 8px; border-radius: 3px;
+    font-family: 'Share Tech Mono', monospace; font-size: 10px; letter-spacing: 0.05em;
+    background: rgba(224,80,80,0.1); border: 1px solid rgba(224,80,80,0.3); color: var(--red2);
+  }
 </style>
 </head>
 <body>
@@ -1209,61 +1275,31 @@
   </header>
 
   <div class="step-indicator">
-    <span class="step-item active">1. Configuration</span>
+    <span class="step-item active">1. Camps</span>
     <span class="step-arrow">&#8594;</span>
     <span class="step-item">2. Round</span>
     <span class="step-arrow">&#8594;</span>
-    <span class="step-item">3. Lancers</span>
-    <span class="step-arrow">&#8594;</span>
-    <span class="step-item">4. Résultats</span>
+    <span class="step-item">3. Résultats</span>
   </div>
 
   <div style="max-width:900px;margin:0 auto;padding:30px 16px 60px;">
     <div class="setup-columns">
-      <!-- ATTAQUANT -->
+      <!-- CAMP X -->
       <div class="setup-col col-attacker">
-        <div class="setup-col-title"><span>&#9876;</span> Attaquant</div>
-        <select class="setup-select" id="setup-attacker" onchange="onSetupSelect('attacker')">
-          <option value="" disabled selected>— Choisir —</option>
-          <option value="joueur">Joueur (saisie libre)</option>
-          <option value="lying-figure">Lying Figure (La Figure Allongée)</option>
-          <option value="mannequin">Mannequin</option>
-          <option value="nurse">Nurse (L'Infirmière)</option>
-          <option value="abstract-daddy">Abstract Daddy (Idéal du Père)</option>
-          <option value="pyramid-head">Pyramid Head (Le Bourreau)</option>
-        </select>
-        <div class="creature-card hidden" id="card-attacker">
-          <div class="creature-card-name" id="card-attacker-name"></div>
-          <div class="creature-card-type" id="card-attacker-type"></div>
-          <div class="creature-card-desc" id="card-attacker-desc"></div>
-          <div class="creature-card-stats" id="card-attacker-stats"></div>
-          <div class="creature-powers" id="card-attacker-powers"></div>
-        </div>
+        <div class="setup-col-title"><span>&#9876;</span> Camp X</div>
+        <div class="roster-list" id="roster-X"></div>
+        <button class="btn-add" onclick="addSlot('X')">+ Ajouter un combattant</button>
       </div>
 
-      <!-- DEFENSEUR -->
+      <!-- CAMP Y -->
       <div class="setup-col col-defender">
-        <div class="setup-col-title"><span>&#128737;</span> Défenseur</div>
-        <select class="setup-select" id="setup-defender" onchange="onSetupSelect('defender')">
-          <option value="" disabled selected>— Choisir —</option>
-          <option value="joueur">Joueur (saisie libre)</option>
-          <option value="lying-figure">Lying Figure (La Figure Allongée)</option>
-          <option value="mannequin">Mannequin</option>
-          <option value="nurse">Nurse (L'Infirmière)</option>
-          <option value="abstract-daddy">Abstract Daddy (Idéal du Père)</option>
-          <option value="pyramid-head">Pyramid Head (Le Bourreau)</option>
-        </select>
-        <div class="creature-card hidden" id="card-defender">
-          <div class="creature-card-name" id="card-defender-name"></div>
-          <div class="creature-card-type" id="card-defender-type"></div>
-          <div class="creature-card-desc" id="card-defender-desc"></div>
-          <div class="creature-card-stats" id="card-defender-stats"></div>
-          <div class="creature-powers" id="card-defender-powers"></div>
-        </div>
+        <div class="setup-col-title"><span>&#128737;</span> Camp Y</div>
+        <div class="roster-list" id="roster-Y"></div>
+        <button class="btn-add" onclick="addSlot('Y')">+ Ajouter un combattant</button>
       </div>
     </div>
 
-    <div class="setup-launch-area">
+    <div class="setup-launch-area" style="text-align:center;margin-top:24px;">
       <button class="btn-launch" id="btn-launch" disabled onclick="launchCombat()">&#9876; Lancer le Combat</button>
     </div>
   </div>
@@ -1272,7 +1308,7 @@
 <!-- ============================================================ -->
 <!-- ROUND CONFIG SCREEN -->
 <!-- ============================================================ -->
-<div id="config-screen" class="hidden">
+<div id="round-screen" class="hidden">
   <header>
     <div class="header-eyebrow">Résolution de Combat</div>
     <h1>La Méthode du Dr. Chestel<span>Intracos · Thérapie Générale · 1991</span></h1>
@@ -1280,13 +1316,11 @@
   </header>
 
   <div class="step-indicator">
-    <span class="step-item done">1. Configuration</span>
+    <span class="step-item done">1. Camps</span>
     <span class="step-arrow">&#8594;</span>
     <span class="step-item active">2. Round</span>
     <span class="step-arrow">&#8594;</span>
-    <span class="step-item">3. Lancers</span>
-    <span class="step-arrow">&#8594;</span>
-    <span class="step-item">4. Résultats</span>
+    <span class="step-item">3. Résultats</span>
   </div>
 
   <div class="screen-inner fade-in">
@@ -1296,208 +1330,7 @@
       <div class="round-number" id="config-round-display">ROUND 1</div>
     </div>
 
-    <div class="config-grid">
-      <!-- ATTAQUANT CONFIG -->
-      <div class="panel attacker" id="config-panel-a">
-        <div class="panel-title"><span class="icon">&#9876;</span> Attaquant</div>
-
-        <div class="field">
-          <label>Nom</label>
-          <input type="text" id="cfg-a-name" placeholder="Nom du combattant">
-        </div>
-
-        <div class="row3">
-          <div class="field">
-            <label>CMB</label>
-            <input type="number" id="cfg-a-cmb" min="-2" max="2" value="0" step="1">
-          </div>
-          <div class="field">
-            <label>FOR</label>
-            <input type="number" id="cfg-a-for" min="-2" max="2" value="0" step="1">
-          </div>
-          <div class="field" id="cfg-a-nm-field">
-            <label>NM</label>
-            <input type="number" id="cfg-a-nm" min="0" max="9" value="0" step="1">
-          </div>
-        </div>
-
-        <div class="field">
-          <label>Posture</label>
-          <div class="posture-group" id="cfg-a-posture">
-            <div class="posture-btn" data-val="-1" onclick="setPosture('cfg-a-posture',-1)">Offensive<br><small>-1 ND</small></div>
-            <div class="posture-btn active" data-val="0" onclick="setPosture('cfg-a-posture',0)">Neutre<br><small>&#177;0</small></div>
-            <div class="posture-btn" data-val="+1" onclick="setPosture('cfg-a-posture',1)">Défensive<br><small>+1 ND</small></div>
-          </div>
-        </div>
-
-        <div class="field">
-          <label>Arme</label>
-          <select id="cfg-a-weapon" onchange="onWeaponChange('a')"></select>
-          <div class="weapon-change-warning hidden" id="cfg-a-weapon-warning">Changement d'arme : perd son action ce round</div>
-        </div>
-
-        <div class="field">
-          <label>Protection</label>
-          <select id="cfg-a-protection">
-            <option value="0|0">Aucune</option>
-            <option value="0|1">Blouson de cuir — R1</option>
-            <option value="1|1">Manteau de fourrure — R1 A1</option>
-            <option value="0|2">Cotte de maille — R2</option>
-            <option value="1|3">Gilet pare-balle — R3 A1</option>
-            <option value="1|2">Casque intégral — R2 A1</option>
-          </select>
-        </div>
-
-        <div class="wound-tracker" id="cfg-a-wounds">
-          <div class="wound-tracker-title">Blessures accumulées</div>
-          <div class="wound-pips" id="cfg-a-wound-pips"></div>
-          <div class="wound-penalty hidden" id="cfg-a-wound-penalty"></div>
-        </div>
-
-        <div class="dice-preview" id="cfg-a-dice-hint">Lance 2D6, garde la somme</div>
-
-        <div class="center-panel" style="margin-top:12px;">
-          <div class="nd-display">
-            <div class="nd-block">
-              <div class="big" id="cfg-a-nd">7</div>
-              <div class="lbl">ND</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- DEFENSEUR CONFIG -->
-      <div class="panel defender" id="config-panel-d">
-        <div class="panel-title"><span class="icon">&#128737;</span> Défenseur</div>
-
-        <div class="field">
-          <label>Nom</label>
-          <input type="text" id="cfg-d-name" placeholder="Nom du combattant">
-        </div>
-
-        <div class="row3">
-          <div class="field">
-            <label>CMB</label>
-            <input type="number" id="cfg-d-cmb" min="-2" max="2" value="0" step="1">
-          </div>
-          <div class="field">
-            <label>FOR</label>
-            <input type="number" id="cfg-d-for" min="-2" max="2" value="0" step="1">
-          </div>
-          <div class="field" id="cfg-d-nm-field">
-            <label>NM</label>
-            <input type="number" id="cfg-d-nm" min="0" max="9" value="0" step="1">
-          </div>
-        </div>
-
-        <div class="field">
-          <label>Posture</label>
-          <div class="posture-group" id="cfg-d-posture">
-            <div class="posture-btn" data-val="-1" onclick="setPosture('cfg-d-posture',-1)">Offensive<br><small>-1 ND</small></div>
-            <div class="posture-btn active" data-val="0" onclick="setPosture('cfg-d-posture',0)">Neutre<br><small>&#177;0</small></div>
-            <div class="posture-btn" data-val="+1" onclick="setPosture('cfg-d-posture',1)">Défensive<br><small>+1 ND</small></div>
-          </div>
-        </div>
-
-        <div class="field">
-          <label>Arme</label>
-          <select id="cfg-d-weapon" onchange="onWeaponChange('d')"></select>
-          <div class="weapon-change-warning hidden" id="cfg-d-weapon-warning">Changement d'arme : perd son action ce round</div>
-        </div>
-
-        <div class="field">
-          <label>Protection</label>
-          <select id="cfg-d-protection">
-            <option value="0|0">Aucune</option>
-            <option value="0|1">Blouson de cuir — R1</option>
-            <option value="1|1">Manteau de fourrure — R1 A1</option>
-            <option value="0|2">Cotte de maille — R2</option>
-            <option value="1|3">Gilet pare-balle — R3 A1</option>
-            <option value="1|2">Casque intégral — R2 A1</option>
-          </select>
-        </div>
-
-        <div class="wound-tracker" id="cfg-d-wounds">
-          <div class="wound-tracker-title">Blessures accumulées</div>
-          <div class="wound-pips" id="cfg-d-wound-pips"></div>
-          <div class="wound-penalty hidden" id="cfg-d-wound-penalty"></div>
-        </div>
-
-        <div class="dice-preview" id="cfg-d-dice-hint">Lance 2D6, garde la somme</div>
-
-        <div class="center-panel" style="margin-top:12px;">
-          <div class="nd-display">
-            <div class="nd-block">
-              <div class="big" id="cfg-d-nd">7</div>
-              <div class="lbl">ND</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div style="text-align:center;">
-      <button class="btn-launch" onclick="goToDiceEntry()">Passer aux Lancers &#8594;</button>
-    </div>
-  </div>
-</div>
-
-<!-- ============================================================ -->
-<!-- DICE ENTRY SCREEN -->
-<!-- ============================================================ -->
-<div id="dice-screen" class="hidden">
-  <header>
-    <div class="header-eyebrow">Résolution de Combat</div>
-    <h1>La Méthode du Dr. Chestel<span>Intracos · Thérapie Générale · 1991</span></h1>
-    <div class="ornament">&#9876;</div>
-  </header>
-
-  <div class="step-indicator">
-    <span class="step-item done">1. Configuration</span>
-    <span class="step-arrow">&#8594;</span>
-    <span class="step-item done">2. Round</span>
-    <span class="step-arrow">&#8594;</span>
-    <span class="step-item active">3. Lancers</span>
-    <span class="step-arrow">&#8594;</span>
-    <span class="step-item">4. Résultats</span>
-  </div>
-
-  <div class="screen-inner fade-in">
-    <button class="btn-back" onclick="backToConfig()">&#8592; Retour au Round</button>
-
-    <div class="round-banner">
-      <div class="round-number" id="dice-round-display">ROUND 1</div>
-    </div>
-
-    <div class="dice-entry-columns">
-      <!-- ATTAQUANT DICE -->
-      <div class="dice-entry-col col-attacker" id="dice-col-a">
-        <div class="dice-entry-name">&#9876; <span id="dice-a-name">Attaquant</span></div>
-        <div id="dice-a-wound-state"></div>
-        <div class="dice-instruction" id="dice-a-instruction"></div>
-        <div id="dice-a-nm-info" class="nm-reminder" style="display:none;"></div>
-        <div id="dice-a-wound-reminder" class="nm-reminder" style="display:none;"></div>
-        <div id="dice-a-weapon-change" class="disabled-action" style="display:none;"></div>
-        <div id="dice-a-input-area">
-          <div class="dice-score-label">Score obtenu (somme des 2 dés gardés)</div>
-          <input type="number" class="dice-score-input" id="dice-a-score" min="2" max="12" placeholder="?" oninput="checkDiceReady()">
-        </div>
-      </div>
-
-      <!-- DEFENSEUR DICE -->
-      <div class="dice-entry-col col-defender" id="dice-col-d">
-        <div class="dice-entry-name">&#128737; <span id="dice-d-name">Défenseur</span></div>
-        <div id="dice-d-wound-state"></div>
-        <div class="dice-instruction" id="dice-d-instruction"></div>
-        <div id="dice-d-nm-info" class="nm-reminder" style="display:none;"></div>
-        <div id="dice-d-wound-reminder" class="nm-reminder" style="display:none;"></div>
-        <div id="dice-d-weapon-change" class="disabled-action" style="display:none;"></div>
-        <div id="dice-d-input-area">
-          <div class="dice-score-label">Score obtenu (somme des 2 dés gardés)</div>
-          <input type="number" class="dice-score-input" id="dice-d-score" min="2" max="12" placeholder="?" oninput="checkDiceReady()">
-        </div>
-      </div>
-    </div>
+    <div class="cards-grid" id="cards-grid"></div>
 
     <div style="text-align:center;">
       <button class="btn-launch" id="btn-resolve-round" disabled onclick="resolveRound()">&#9876; Résoudre ce Round</button>
@@ -1516,13 +1349,11 @@
   </header>
 
   <div class="step-indicator">
-    <span class="step-item done">1. Configuration</span>
+    <span class="step-item done">1. Camps</span>
     <span class="step-arrow">&#8594;</span>
     <span class="step-item done">2. Round</span>
     <span class="step-arrow">&#8594;</span>
-    <span class="step-item done">3. Lancers</span>
-    <span class="step-arrow">&#8594;</span>
-    <span class="step-item active">4. Résultats</span>
+    <span class="step-item active">3. Résultats</span>
   </div>
 
   <div class="screen-inner fade-in" id="results-body"></div>
@@ -1658,16 +1489,44 @@ var STANDARD_WEAPON_OPTIONS = '<option value="poing-faible">Poings nus (FOR -2/-
 var state = {
   round: 0,
   combatOver: false,
-  winner: null,
-  a: { name:'', cmb:0, forStat:0, nm:0, weapon:'poing-moyen', prevWeapon:null, weaponChanged:false,
-       posture:0, protection:'0|0',
-       wounds: [0,0,0,0,0], highestWoundLevel: 0, isDown: false, isCreature: false, creatureKey: null },
-  b: { name:'', cmb:0, forStat:0, nm:0, weapon:'poing-moyen', prevWeapon:null, weaponChanged:false,
-       posture:0, protection:'0|0',
-       wounds: [0,0,0,0,0], highestWoundLevel: 0, isDown: false, isCreature: false, creatureKey: null }
+  winningCamp: null,
+  combatants: [],          // tableau d'objets-combattants à id stable
+  _idSeq: 0,
+  // transitoires de résolution (réinitialisés à chaque round) :
+  _queue: null,            // tableau de groupes de F.R. : [[action,...], [action,...]]
+  _gIndex: 0,              // index du groupe courant
+  _aIndex: 0,              // index de l'action courante dans le groupe
+  _downAtGroupStart: null, // Set d'ids déjà à terre au début du groupe courant
+  _narrativeLines: []
 };
 
-var setupSelections = { attacker: null, defender: null };
+// Deux camps génériques X / Y. Classe CSS « attacker » = rouge (X), « defender » = teal (Y).
+var CAMPS = {
+  X: { label: 'Camp X', cls: 'attacker', icon: '&#9876;' },
+  Y: { label: 'Camp Y', cls: 'defender', icon: '&#128737;' }
+};
+
+// Rosters de configuration initiale : tableaux de { key } (key = 'joueur' | clé CREATURES | null)
+var setupRoster = { X: [], Y: [] };
+
+// ============================================================
+// ACCESSEURS COMBATTANTS
+// ============================================================
+
+function getCombatant(id) {
+  for (var i = 0; i < state.combatants.length; i++) {
+    if (state.combatants[i].id === id) return state.combatants[i];
+  }
+  return null;
+}
+function livingOf(camp) {
+  return state.combatants.filter(function(c) { return c.camp === camp && !c.isDown; });
+}
+function allLiving() {
+  return state.combatants.filter(function(c) { return !c.isDown; });
+}
+function opposingCamp(camp) { return camp === 'X' ? 'Y' : 'X'; }
+function campDefeated(camp) { return livingOf(camp).length === 0; }
 
 // ============================================================
 // CONSTANTS
@@ -1691,70 +1550,186 @@ var POSTURE_TABLE = [[-2,-1,0],[-1,0,1],[0,1,2]];
 // ============================================================
 
 var NARR = {
+  // === ATTAQUES RÉUSSIES (génériques + par type d'arme) ===
   attackHit: [
-    "D'un geste vif, [attacker] porte un coup décisif.",
-    "Le coup atteint sa cible avec une précision redoutable.",
-    "[attacker] frappe avec une violence inouïe.",
-    "L'impact résonne dans le silence oppressant de l'Intracos."
+    "D'un geste vif, [attacker] porte un coup décisif avec [weapon].",
+    "Le coup de [weapon] atteint sa cible avec une précision redoutable.",
+    "[attacker] frappe avec [weapon]. L'impact est violent.",
+    "L'impact de [weapon] résonne dans le silence oppressant de l'Intracos.",
+    "[attacker] ajuste son coup. [weapon] trouve sa cible.",
+    "Un mouvement fulgurant. [weapon] s'abat sur [defender].",
+    "[attacker] ne laisse aucune chance — [weapon] fait mouche.",
+    "Le coup est porté avec détermination. [weapon] transperce la garde de [defender].",
+    "Dans un élan désespéré, [attacker] frappe avec [weapon]. Le coup porte !",
+    "[defender] n'a pas le temps de réagir. [weapon] le touche de plein fouet.",
+    "À travers le brouillard de l'Intracos, [weapon] trouve sa cible avec une précision chirurgicale.",
+    "[attacker] profite d'une ouverture et abat [weapon] sans hésiter."
   ],
+  attackHitExceptional: [
+    "MAGISTRAL ! [attacker] porte un coup d'une violence extraordinaire avec [weapon] !",
+    "[attacker] frappe avec [weapon] d'une manière qui défie les lois de l'Intracos. Coup exceptionnel !",
+    "Un coup parfait ! [weapon] atteint [defender] exactement là où ça fait le plus mal.",
+    "Les Soigneurs n'en croient pas leurs yeux. [weapon] frappe avec une puissance inouïe !",
+    "[attacker] canalise toute sa rage dans [weapon]. Le résultat est dévastateur."
+  ],
+
+  // === ATTAQUES RATÉES (génériques + par contexte) ===
   attackMiss: [
-    "L'attaque fend l'air sans atteindre sa cible.",
-    "[attacker] manque son adversaire d'un cheveu.",
-    "Le coup se perd dans le vide — trop lent, trop prévisible.",
-    "Un geste maladroit. L'ouverture est manquée."
+    "L'attaque de [attacker] fend l'air sans atteindre sa cible.",
+    "[attacker] manque [defender] d'un cheveu avec [weapon].",
+    "Le coup de [weapon] se perd dans le vide — trop lent, trop prévisible.",
+    "Un geste maladroit. [weapon] ne rencontre que le vide.",
+    "[attacker] tente une attaque avec [weapon], mais [defender] esquive au dernier moment.",
+    "[weapon] siffle dans l'air. Raté. [defender] a bougé juste à temps.",
+    "[attacker] perd l'équilibre en frappant avec [weapon]. L'ouverture est manquée.",
+    "Le brouillard de l'Intracos brouille la perception de [attacker]. Le coup manque sa cible.",
+    "[defender] se décale au dernier instant. [weapon] ne fait qu'effleurer l'air.",
+    "Un éclair de lucidité de [defender] — l'attaque de [attacker] ne touche que le néant.",
+    "[attacker] frappe trop haut. [weapon] passe au-dessus de [defender].",
+    "La fatigue se fait sentir. [attacker] rate son coup avec [weapon]."
   ],
+
+  // === BLESSURES (enrichies, avec contexte arme) ===
   woundB1: [
-    "Une griffure. Le sang perle à peine.",
-    "Blessure superficielle — plus de peur que de mal."
+    "Une griffure superficielle. Le sang perle à peine.",
+    "Blessure légère — plus de peur que de mal. [victim] grimace mais tient bon.",
+    "[weapon] laisse une marque, rien de plus. [victim] peut continuer.",
+    "Une éraflure. [victim] essuie le sang d'un revers de main.",
+    "Le coup de [weapon] n'a fait qu'effleurer [victim]. Blessure mineure.",
+    "Un bleu, peut-être une entaille superficielle. [victim] a eu de la chance."
   ],
   woundB2: [
-    "La douleur est vive. La blessure saigne abondamment.",
-    "Un coup sérieux, mais [victim] tient encore debout."
+    "La douleur est vive. [weapon] a laissé une blessure qui saigne abondamment.",
+    "Un coup sérieux de [weapon], mais [victim] tient encore debout.",
+    "[victim] accuse le coup. La blessure de [weapon] est sérieuse mais pas mortelle.",
+    "Le sang coule. [weapon] a fait des dégâts. [victim] serre les dents.",
+    "[victim] chancelle sous l'impact de [weapon]. La blessure est préoccupante.",
+    "Une entaille profonde. [victim] porte la main à sa blessure — ça saigne beaucoup."
   ],
   woundB3: [
-    "Un craquement sinistre. [victim] grimace de douleur.",
-    "La blessure est profonde. Chaque mouvement est une torture."
+    "Un craquement sinistre. [weapon] a fait des dégâts graves. [victim] grimace de douleur.",
+    "La blessure de [weapon] est profonde. Chaque mouvement est une torture pour [victim].",
+    "[victim] pousse un cri. [weapon] a touché quelque chose de vital.",
+    "Le sang jaillit. [weapon] a infligé une blessure grave à [victim]. Le combat tourne mal.",
+    "[victim] vacille dangereusement. La blessure causée par [weapon] est terrible.",
+    "Les chairs se déchirent sous l'impact de [weapon]. [victim] peut à peine bouger."
   ],
   woundB4: [
-    "[victim] s'effondre, incapable de se relever.",
-    "Le corps lâche. Hors combat."
+    "[victim] s'effondre sous l'impact de [weapon], incapable de se relever.",
+    "Le corps de [victim] lâche. [weapon] a mis fin au combat.",
+    "[weapon] porte le coup de grâce. [victim] s'écroule, hors combat.",
+    "[victim] tombe à genoux, puis face contre terre. [weapon] l'a mis hors d'état de nuire.",
+    "C'est fini pour [victim]. [weapon] a fait son œuvre. Plus aucun mouvement.",
+    "Un dernier gémissement. [victim] s'effondre après le coup dévastateur de [weapon]."
   ],
   woundB5: [
-    "L'agonie. [victim] s'écroule dans une mare de sang.",
-    "C'est la fin. Sans intervention immédiate, la mort est certaine."
+    "L'agonie. [weapon] a porté un coup fatal. [victim] s'écroule dans une mare de sang.",
+    "C'est la fin. [weapon] a tué. Sans intervention immédiate, [victim] va mourir.",
+    "[victim] s'effondre. [weapon] a infligé une blessure mortelle. Le silence retombe.",
+    "Un coup mortel de [weapon]. [victim] gît au sol, les yeux dans le vide. L'Intracos frémit.",
+    "Le dernier souffle. [weapon] a mis fin à l'existence de [victim] dans cet Intracos.",
+    "[victim] s'écroule lentement. [weapon] a frappé là où il ne fallait pas. C'est terminé."
   ],
+
+  // === ENCAISSEMENT (enrichi) ===
   encReduce: [
-    "[victim] serre les dents et encaisse. La blessure est moins grave que prévu."
+    "[victim] serre les dents et encaisse. La blessure est moins grave que prévu.",
+    "Par miracle, [victim] résiste au choc. La blessure se révèle superficielle.",
+    "[victim] encaisse le coup avec stoïcisme. Son corps absorbe une partie de l'impact.",
+    "La constitution robuste de [victim] fait la différence. La blessure est atténuée.",
+    "Un sursaut de volonté. [victim] refuse de céder. La blessure est réduite.",
+    "[victim] a de la ressource. Le coup qui semblait dévastateur est finalement supportable."
   ],
   encNormal: [
-    "Le coup fait son effet. Ni plus, ni moins."
+    "Le coup fait son effet sur [victim]. Ni plus, ni moins.",
+    "[victim] encaisse. La douleur est là, exacte, sans surprise.",
+    "L'impact est conforme à ce qu'on pouvait craindre. [victim] accuse le coup.",
+    "[victim] absorbe le choc comme il vient. La blessure reste ce qu'elle est.",
+    "Pas de miracle, pas d'aggravation. [victim] doit faire avec cette blessure.",
+    "Le corps de [victim] réagit normalement. La blessure suit son cours."
   ],
   encAggrav: [
-    "Le choc est pire qu'il n'y paraît. La blessure s'aggrave dangereusement."
+    "Le choc est pire qu'il n'y paraît. La blessure de [victim] s'aggrave dangereusement !",
+    "[victim] titube. Le coup a fait plus de dégâts que prévu — la blessure empire.",
+    "Mauvaise nouvelle pour [victim]. Le corps ne tient pas. La blessure s'aggrave.",
+    "[victim] tousse du sang. L'impact a causé des dommages internes. C'est grave.",
+    "Le corps de [victim] cède sous la douleur. La blessure vient de monter d'un cran.",
+    "Ça ne va pas du tout. [victim] pâlit visiblement. La blessure s'est aggravée."
   ],
+
+  // === CATASTROPHE (score de 2) ===
   catastrophe: [
-    "CATASTROPHE ! Un enchaînement de malchances invraisemblable.",
-    "Tout va de travers. Le sol se dérobe sous ses pieds.",
-    "Le pire scénario possible se réalise sous les yeux horrifiés des Soigneurs."
+    "CATASTROPHE ! [attacker] glisse et manque complètement son coup. Humiliation totale.",
+    "Tout va de travers pour [attacker]. Le sol se dérobe, l'arme échappe des mains.",
+    "Le pire scénario possible se réalise sous les yeux horrifiés des Soigneurs. [attacker] est en difficulté.",
+    "[attacker] trébuche au pire moment. L'Intracos semble se retourner contre lui.",
+    "Un enchaînement de malchances invraisemblable frappe [attacker]. Score de 2 — catastrophe !",
+    "L'univers mental conspire contre [attacker]. Rien ne fonctionne. Catastrophe !",
+    "[attacker] perd ses repères dans le brouillard de l'Intracos. Score catastrophique.",
+    "Un bruit strident résonne. [attacker] est désorienté. Son action est un désastre."
   ],
+
+  // === SCORE DE 12 ===
   nat12: [
-    "Un coup PARFAIT ! La réalité même de l'Intracos semble se plier à cette action.",
-    "Score de 12 ! L'impossible devient possible."
+    "Un coup PARFAIT ! La réalité même de l'Intracos semble se plier à l'action de [attacker].",
+    "Score de 12 ! L'impossible devient possible pour [attacker]. L'Intracos vibre.",
+    "[attacker] entre en communion avec l'Intracos. Un score parfait — le destin lui sourit.",
+    "Les lois de la physique se plient. [attacker] accomplit l'impensable. Score de 12 !",
+    "Un moment de grâce pure. [attacker] transcende les limites de l'Intracos. Perfection.",
+    "L'air crépite d'énergie. [attacker] réalise un exploit qui restera gravé dans l'Intracos."
   ],
+
+  // === CHANGEMENT D'ARME ===
   weaponChange: [
-    "[name] laisse tomber son arme et en saisit une autre. Ce round est perdu à préparer son équipement."
+    "[name] laisse tomber son arme et en saisit une autre. Ce round est perdu à préparer son équipement.",
+    "[name] change d'arme. Le temps de dégainer, le round est déjà terminé.",
+    "[name] fouille frénétiquement pour trouver une autre arme. Pas d'action ce tour-ci.",
+    "Un bruit métallique — [name] jette son arme et en attrape une nouvelle. Round perdu.",
+    "[name] décide de changer de tactique. Le temps de s'équiper, l'adversaire a l'avantage."
   ],
+
+  // === FIN DE ROUND ===
   roundEnd: [
-    "Fin du round [n]. Les deux combattants reprennent leur souffle.",
-    "Le combat fait rage. L'issue reste incertaine.",
-    "Round [n] terminé. La tension est palpable dans l'Intracos."
+    "Fin du round [n]. Les deux combattants reprennent leur souffle dans l'obscurité de l'Intracos.",
+    "Le combat fait rage. L'issue reste incertaine. Round [n] terminé.",
+    "Round [n] terminé. La tension est palpable dans l'Intracos. Le brouillard s'épaissit.",
+    "Les échos du combat résonnent dans les couloirs de l'Intracos. Fin du round [n].",
+    "Round [n]. Le sang et la sueur marquent le sol. Personne ne lâche.",
+    "Un silence pesant s'installe brièvement. Round [n] terminé. Le prochain sera décisif ?",
+    "Les ombres dansent sur les murs de l'Intracos. Round [n] achevé.",
+    "La sirène hurle au loin. Round [n] terminé. Le cauchemar continue.",
+    "Fin du round [n]. La rouille suinte des murs. L'Intracos se transforme lentement.",
+    "Round [n]. Les deux adversaires se jaugent, couverts de blessures. Rien n'est joué."
   ],
+
+  // === VICTOIRE ===
   winGeneric: [
     "[winner] se dresse au-dessus de [loser]. L'Intracos tremble.",
-    "[winner] pousse un cri de victoire. [loser] est à terre.",
+    "[winner] pousse un cri de victoire. [loser] est à terre, immobile.",
     "C'est terminé. [loser] ne peut plus combattre. [winner] l'emporte.",
     "[loser] s'effondre. [winner] reste debout, seul maître du terrain.",
-    "Le silence retombe sur l'Intracos. [loser] gît au sol, immobile."
+    "Le silence retombe sur l'Intracos. [loser] gît au sol, vaincu.",
+    "La menace est neutralisée. [winner] peut souffler... pour l'instant.",
+    "Un dernier râle de [loser]. [winner] contemple sa victoire dans le brouillard sanglant.",
+    "L'Intracos se calme. [loser] ne bouge plus. [winner] a survécu... cette fois.",
+    "Le combat est fini. [winner] vacille mais reste debout. [loser] ne se relèvera pas.",
+    "Les murs cessent de suinter. [loser] est vaincu. [winner] reprend son souffle dans le silence."
+  ],
+
+  // === INITIATIVE ===
+  initFirst: [
+    "Plus rapide, [first] porte le premier coup !",
+    "[first] prend l'avantage et frappe en premier.",
+    "L'initiative revient à [first]. Son adversaire n'a pas le temps de réagir.",
+    "[first] anticipe le mouvement de [second] et attaque en premier.",
+    "D'un bond, [first] se jette sur [second] avant que celui-ci ne puisse agir."
+  ],
+  initSimultaneous: [
+    "Les deux adversaires frappent au même instant !",
+    "Actions simultanées — les coups sont échangés dans le même souffle.",
+    "Aucun des deux ne recule. Ils frappent en même temps !",
+    "Un échange brutal et simultané. Les deux combattants donnent tout.",
+    "Pas de priorité — les deux attaques fusent au même moment."
   ]
 };
 
@@ -1870,6 +1845,25 @@ function renderWoundPenalty(wounds) {
   return 'Blessure actuelle : ' + BLESS_NAMES[idx] + ' (' + BLESS_THRESHOLDS[idx] + ') — tout jet \u2264 ' + BLESS_THRESHOLDS[idx] + ' échoue';
 }
 
+function weaponLabel(weaponKey) {
+  if (!weaponKey || !WEAPON_DATA[weaponKey]) return 'son arme';
+  var labels = {
+    'poing-faible': 'ses poings', 'poing-moyen': 'ses poings', 'poing-fort': 'ses poings',
+    'baton': 'son bâton', 'chandelier': 'le chandelier', 'couteau': 'son couteau',
+    'grand-couteau': 'son grand couteau', 'epee': 'son épée', 'fronde': 'sa fronde',
+    'pistolet-petit': 'son pistolet', 'pistolet-moyen': 'son arme de poing',
+    'pistolet-gros': 'son arme lourde', 'arme-guerre': 'son arme de guerre',
+    'griffes-monstre': 'ses griffes',
+    'lying-slam': 'son corps', 'lying-acid-spit': 'son crachat d\'acide',
+    'lying-acid-spray': 'sa brume acide', 'lying-grab': 'sa saisie',
+    'mannequin-slam': 'ses jambes', 'nurse-pipe': 'son tuyau en acier',
+    'nurse-syringe': 'sa seringue', 'nurse-gun': 'son pistolet en plomb',
+    'daddy-slam': 'son poids écrasant', 'daddy-grab': 'sa saisie mortelle',
+    'pyramid-blade': 'son Grand Couteau', 'pyramid-spear': 'sa Grande Lance'
+  };
+  return labels[weaponKey] || WEAPON_DATA[weaponKey].label || 'son arme';
+}
+
 function getChocLevel(weapon, forVal) {
   var choc = WEAPON_DATA[weapon].choc;
   if (choc === 'poing') {
@@ -1905,41 +1899,6 @@ function getBlessTagClass(level) {
 // SETUP SCREEN LOGIC
 // ============================================================
 
-function onSetupSelect(side) {
-  var sel = document.getElementById('setup-' + (side === 'attacker' ? 'attacker' : 'defender'));
-  var val = sel.value;
-  setupSelections[side] = val;
-
-  var card = document.getElementById('card-' + (side === 'attacker' ? 'attacker' : 'defender'));
-  var prefix = side === 'attacker' ? 'attacker' : 'defender';
-
-  if (val === 'joueur') {
-    card.classList.remove('hidden');
-    document.getElementById('card-' + prefix + '-name').textContent = 'Joueur (Saisie libre)';
-    document.getElementById('card-' + prefix + '-type').textContent = 'Personnage joueur';
-    document.getElementById('card-' + prefix + '-desc').textContent = 'Tous les champs seront modifiables manuellement.';
-    document.getElementById('card-' + prefix + '-stats').innerHTML = '';
-    document.getElementById('card-' + prefix + '-powers').innerHTML = '';
-  } else if (CREATURES[val]) {
-    var c = CREATURES[val];
-    card.classList.remove('hidden');
-    document.getElementById('card-' + prefix + '-name').textContent = c.name;
-    document.getElementById('card-' + prefix + '-type').textContent = c.type;
-    document.getElementById('card-' + prefix + '-desc').textContent = c.description;
-    document.getElementById('card-' + prefix + '-stats').innerHTML =
-      '<span class="creature-stat-badge">CMB ' + (c.cmb >= 0 ? '+' : '') + c.cmb + '</span>' +
-      '<span class="creature-stat-badge">FOR ' + (c.for >= 0 ? '+' : '') + c.for + '</span>' +
-      '<span class="creature-stat-badge">' + c.attacks.length + ' attaque' + (c.attacks.length > 1 ? 's' : '') + '</span>';
-    var powHTML = '';
-    c.powers.forEach(function(p) { powHTML += '<span class="creature-power-tag">' + p + '</span>'; });
-    document.getElementById('card-' + prefix + '-powers').innerHTML = powHTML;
-  } else {
-    card.classList.add('hidden');
-  }
-
-  document.getElementById('btn-launch').disabled = !(setupSelections.attacker && setupSelections.defender);
-}
-
 function populateWeaponSelect(selectEl, creatureKey) {
   if (creatureKey && CREATURES[creatureKey]) {
     var c = CREATURES[creatureKey];
@@ -1953,735 +1912,699 @@ function populateWeaponSelect(selectEl, creatureKey) {
   }
 }
 
-function launchCombat() {
-  if (!setupSelections.attacker || !setupSelections.defender) return;
-
-  // Reset state
-  state.round = 0;
-  state.combatOver = false;
-  state.winner = null;
-
-  // Init combatant A
-  var aKey = setupSelections.attacker;
-  state.a.isCreature = (aKey !== 'joueur');
-  state.a.creatureKey = aKey;
-  state.a.wounds = [0,0,0,0,0];
-  state.a.highestWoundLevel = 0;
-  state.a.isDown = false;
-  state.a.prevWeapon = null;
-  state.a.weaponChanged = false;
-
-  if (aKey === 'joueur') {
-    state.a.name = '';
-    state.a.cmb = 0; state.a.forStat = 0; state.a.nm = 0;
-    state.a.weapon = 'poing-moyen';
-    state.a.protection = '0|0';
-    state.a.posture = 0;
-  } else {
-    var c = CREATURES[aKey];
-    state.a.name = c.name;
-    state.a.cmb = c.cmb; state.a.forStat = c.for; state.a.nm = 0;
-    state.a.weapon = c.defaultWeapon;
-    state.a.protection = c.defaultProtection;
-    state.a.posture = -1; // creatures default offensive
-  }
-
-  // Init combatant B
-  var bKey = setupSelections.defender;
-  state.b.isCreature = (bKey !== 'joueur');
-  state.b.creatureKey = bKey;
-  state.b.wounds = [0,0,0,0,0];
-  state.b.highestWoundLevel = 0;
-  state.b.isDown = false;
-  state.b.prevWeapon = null;
-  state.b.weaponChanged = false;
-
-  if (bKey === 'joueur') {
-    state.b.name = '';
-    state.b.cmb = 0; state.b.forStat = 0; state.b.nm = 0;
-    state.b.weapon = 'poing-moyen';
-    state.b.protection = '0|0';
-    state.b.posture = 0;
-  } else {
-    var c2 = CREATURES[bKey];
-    state.b.name = c2.name;
-    state.b.cmb = c2.cmb; state.b.forStat = c2.for; state.b.nm = 0;
-    state.b.weapon = c2.defaultWeapon;
-    state.b.protection = c2.defaultProtection;
-    state.b.posture = -1;
-  }
-
-  goToConfig();
-}
-
-// ============================================================
-// SCREEN TRANSITIONS
-// ============================================================
-
-function showScreen(id) {
-  ['setup-screen', 'config-screen', 'dice-screen', 'results-screen'].forEach(function(s) {
-    document.getElementById(s).classList.add('hidden');
-  });
-  document.getElementById(id).classList.remove('hidden');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-function backToSetup() {
-  showScreen('setup-screen');
-}
-
-function backToConfig() {
-  showScreen('config-screen');
-}
-
-// ============================================================
-// CONFIG SCREEN
-// ============================================================
-
-function goToConfig() {
-  state.round++;
-
-  // Populate config fields from state
-  populateConfigSide('a', state.a);
-  populateConfigSide('d', state.b);
-
-  document.getElementById('config-round-display').textContent = 'ROUND ' + state.round;
-
-  updateNDs();
-  showScreen('config-screen');
-}
-
-function populateConfigSide(prefix, c) {
-  document.getElementById('cfg-' + prefix + '-name').value = c.name;
-  document.getElementById('cfg-' + prefix + '-cmb').value = c.cmb;
-  document.getElementById('cfg-' + prefix + '-for').value = c.forStat;
-  document.getElementById('cfg-' + prefix + '-nm').value = c.nm;
-
-  // Disable fields for creatures
-  var isCreature = c.isCreature;
-  document.getElementById('cfg-' + prefix + '-name').disabled = isCreature;
-  document.getElementById('cfg-' + prefix + '-cmb').disabled = isCreature;
-  document.getElementById('cfg-' + prefix + '-for').disabled = isCreature;
-  document.getElementById('cfg-' + prefix + '-nm').disabled = isCreature || c.isCreature;
-  document.getElementById('cfg-' + prefix + '-protection').disabled = isCreature;
-
-  if (isCreature && c.nm === 0) {
-    document.getElementById('cfg-' + prefix + '-nm-field').style.opacity = '0.45';
-  } else {
-    document.getElementById('cfg-' + prefix + '-nm-field').style.opacity = '1';
-  }
-
-  // Weapon
-  populateWeaponSelect(document.getElementById('cfg-' + prefix + '-weapon'), c.creatureKey);
-  document.getElementById('cfg-' + prefix + '-weapon').value = c.weapon;
-
-  // Protection
-  document.getElementById('cfg-' + prefix + '-protection').value = c.protection;
-
-  // Posture
-  setPosture('cfg-' + prefix + '-posture', c.posture);
-
-  // Wounds
-  document.getElementById('cfg-' + prefix + '-wound-pips').innerHTML = renderWoundPips(c.wounds);
-  var penaltyEl = document.getElementById('cfg-' + prefix + '-wound-penalty');
-  var penaltyText = renderWoundPenalty(c.wounds);
-  if (penaltyText) {
-    penaltyEl.textContent = penaltyText;
-    penaltyEl.classList.remove('hidden');
-  } else {
-    penaltyEl.classList.add('hidden');
-  }
-
-  // Dice hint
-  document.getElementById('cfg-' + prefix + '-dice-hint').textContent = getDiceHint(c.cmb);
-
-  // Weapon change detection
-  document.getElementById('cfg-' + prefix + '-weapon-warning').classList.add('hidden');
-  c.weaponChanged = false;
-}
-
-function onWeaponChange(prefix) {
-  var c = (prefix === 'a') ? state.a : state.b;
-  var newWeapon = document.getElementById('cfg-' + prefix + '-weapon').value;
-  var warningEl = document.getElementById('cfg-' + prefix + '-weapon-warning');
-
-  if (c.prevWeapon !== null && newWeapon !== c.prevWeapon) {
-    warningEl.classList.remove('hidden');
-    c.weaponChanged = true;
-  } else {
-    warningEl.classList.add('hidden');
-    c.weaponChanged = false;
-  }
-}
-
-function updateNDs() {
-  var aPos = getPostureVal('cfg-a-posture');
-  var dPos = getPostureVal('cfg-d-posture');
-  var mod = getPostureMod(aPos, dPos);
-  var nd = 7 + mod;
-
-  document.getElementById('cfg-a-nd').textContent = nd;
-  document.getElementById('cfg-d-nd').textContent = nd;
-
-  // Also update dice hints
-  var aCmb = parseInt(document.getElementById('cfg-a-cmb').value) || 0;
-  var dCmb = parseInt(document.getElementById('cfg-d-cmb').value) || 0;
-  document.getElementById('cfg-a-dice-hint').textContent = getDiceHint(aCmb);
-  document.getElementById('cfg-d-dice-hint').textContent = getDiceHint(dCmb);
-}
-
-// ============================================================
-// DICE ENTRY SCREEN
-// ============================================================
-
-function goToDiceEntry() {
-  // Read config fields into state
-  state.a.name = document.getElementById('cfg-a-name').value || 'Attaquant';
-  state.a.cmb = clamp(parseInt(document.getElementById('cfg-a-cmb').value) || 0, -2, 2);
-  state.a.forStat = clamp(parseInt(document.getElementById('cfg-a-for').value) || 0, -2, 2);
-  state.a.nm = clamp(parseInt(document.getElementById('cfg-a-nm').value) || 0, 0, 9);
-  state.a.posture = getPostureVal('cfg-a-posture');
-  var newWeaponA = document.getElementById('cfg-a-weapon').value;
-  if (state.a.prevWeapon !== null && newWeaponA !== state.a.prevWeapon) {
-    state.a.weaponChanged = true;
-  }
-  state.a.weapon = newWeaponA;
-  state.a.protection = document.getElementById('cfg-a-protection').value;
-
-  state.b.name = document.getElementById('cfg-d-name').value || 'Défenseur';
-  state.b.cmb = clamp(parseInt(document.getElementById('cfg-d-cmb').value) || 0, -2, 2);
-  state.b.forStat = clamp(parseInt(document.getElementById('cfg-d-for').value) || 0, -2, 2);
-  state.b.nm = clamp(parseInt(document.getElementById('cfg-d-nm').value) || 0, 0, 9);
-  state.b.posture = getPostureVal('cfg-d-posture');
-  var newWeaponB = document.getElementById('cfg-d-weapon').value;
-  if (state.b.prevWeapon !== null && newWeaponB !== state.b.prevWeapon) {
-    state.b.weaponChanged = true;
-  }
-  state.b.weapon = newWeaponB;
-  state.b.protection = document.getElementById('cfg-d-protection').value;
-
-  // Compute ND
-  var mod = getPostureMod(state.a.posture, state.b.posture);
-  state.nd = 7 + mod;
-  state.a.highestWoundLevel = computeHighestWound(state.a.wounds);
-  state.b.highestWoundLevel = computeHighestWound(state.b.wounds);
-
-  // Populate dice screen
-  document.getElementById('dice-round-display').textContent = 'ROUND ' + state.round;
-  populateDiceSide('a', state.a);
-  populateDiceSide('d', state.b);
-
-  // Clear scores
-  document.getElementById('dice-a-score').value = '';
-  document.getElementById('dice-d-score').value = '';
-  document.getElementById('btn-resolve-round').disabled = true;
-
-  showScreen('dice-screen');
-}
-
-function populateDiceSide(prefix, c) {
-  document.getElementById('dice-' + prefix + '-name').textContent = c.name;
-
-  // Wound state display
-  var woundStateEl = document.getElementById('dice-' + prefix + '-wound-state');
-  if (highestWoundIndex(c.wounds) >= 0) {
-    woundStateEl.innerHTML = '<div class="wound-tracker" style="margin-bottom:12px;"><div class="wound-pips">' +
-      renderWoundPips(c.wounds) + '</div></div>';
-  } else {
-    woundStateEl.innerHTML = '';
-  }
-
-  // Dice instruction
-  document.getElementById('dice-' + prefix + '-instruction').innerHTML = getDiceInstruction(c.cmb);
-
-  // NM info
-  var nmEl = document.getElementById('dice-' + prefix + '-nm-info');
-  if (c.nm > 0) {
-    nmEl.style.display = 'inline-block';
-    nmEl.innerHTML = 'Score plancher garanti : <strong>' + c.nm + '</strong>';
-  } else {
-    nmEl.style.display = 'none';
-  }
-
-  // Wound reminder
-  var woundRemEl = document.getElementById('dice-' + prefix + '-wound-reminder');
-  if (c.highestWoundLevel > 0) {
-    woundRemEl.style.display = 'inline-block';
-    woundRemEl.innerHTML = 'Rappel : tout score \u2264 <strong>' + c.highestWoundLevel + '</strong> est un échec automatique';
-    woundRemEl.style.background = 'rgba(220,50,50,0.1)';
-    woundRemEl.style.borderColor = 'rgba(220,50,50,0.25)';
-    woundRemEl.style.color = 'var(--red2)';
-  } else {
-    woundRemEl.style.display = 'none';
-  }
-
-  // Weapon change
-  var wcEl = document.getElementById('dice-' + prefix + '-weapon-change');
-  var inputArea = document.getElementById('dice-' + prefix + '-input-area');
-  var scoreInput = document.getElementById('dice-' + prefix + '-score');
-
-  if (c.weaponChanged) {
-    wcEl.style.display = 'block';
-    wcEl.textContent = narr('weaponChange', { name: c.name });
-    inputArea.style.display = 'none';
-    scoreInput.value = '';
-    scoreInput.disabled = true;
-  } else {
-    wcEl.style.display = 'none';
-    inputArea.style.display = 'block';
-    scoreInput.disabled = false;
-  }
-}
-
-function checkDiceReady() {
-  var aDisabled = state.a.weaponChanged;
-  var bDisabled = state.b.weaponChanged;
-
-  var ready = true;
-
-  if (!aDisabled) {
-    var aVal = parseInt(document.getElementById('dice-a-score').value);
-    if (isNaN(aVal) || aVal < 2 || aVal > 12) ready = false;
-  }
-
-  if (!bDisabled) {
-    var bVal = parseInt(document.getElementById('dice-d-score').value);
-    if (isNaN(bVal) || bVal < 2 || bVal > 12) ready = false;
-  }
-
-  document.getElementById('btn-resolve-round').disabled = !ready;
-}
-
-// ============================================================
-// RESOLVE ROUND
-// ============================================================
-
-function resolveRound() {
-  var aRaw = state.a.weaponChanged ? null : parseInt(document.getElementById('dice-a-score').value);
-  var bRaw = state.b.weaponChanged ? null : parseInt(document.getElementById('dice-d-score').value);
-
-  // Build results HTML progressively
-  var html = '';
-
-  html += '<div class="round-banner"><div class="round-number">RÉSULTATS — ROUND ' + state.round + '</div></div>';
-
-  // ---- A) SCORES & FR ----
-  var aScore = null, bScore = null, aFR = null, bFR = null;
-  var aIsCat = false, bIsCat = false, aNat12 = false, bNat12 = false;
-  var aQual = null, bQual = null;
-  var aAutoFail = false, bAutoFail = false;
-
-  html += '<div class="results-inner"><div class="results-header"><span>A) Scores et Facteurs de Réussite</span></div><div class="results-body"><div class="results-columns">';
-
-  // Attacker score
-  html += '<div class="combatant-result attacker"><div class="cr-name">&#9876; ' + esc(state.a.name) + '</div>';
-  if (aRaw !== null) {
-    aIsCat = (aRaw === 2);
-    aNat12 = (aRaw === 12);
-    aScore = aIsCat ? 2 : Math.max(aRaw, state.a.nm);
-    aAutoFail = (!aIsCat && !aNat12 && state.a.highestWoundLevel > 0 && aScore <= state.a.highestWoundLevel);
-    aFR = aScore - state.nd;
-    if (aNat12 && aFR < 0) aFR = 0;
-    if (aAutoFail) aFR = -99;
-    aQual = getFRQuality(aFR, aIsCat, aNat12);
-
-    html += '<div class="score-row"><span>Dés</span><span class="val">' + aRaw + '</span></div>';
-    if (aScore !== aRaw && !aIsCat) html += '<div class="score-row"><span>NM ' + state.a.nm + ' (compétence)</span><span class="val" style="color:var(--gold2);">Score remonté à ' + aScore + '</span></div>';
-    if (aAutoFail) {
-      var woundName = getBlessName(Math.ceil(state.a.highestWoundLevel / 2));
-      html += '<div class="score-row"><span>Blessure ' + woundName + ' (niv. ' + state.a.highestWoundLevel + ')</span><span class="val" style="color:var(--red2);">Score ' + aScore + ' ≤ ' + state.a.highestWoundLevel + ' → Échec auto</span></div>';
-    }
-    html += '<div class="score-row"><span>ND</span><span class="val">' + state.nd + '</span></div>';
-    html += '<div class="fr-display ' + aQual.cls + '"><div class="fr-label">Facteur de Réussite</div><div class="fr-val">' + (aIsCat ? '!!!' : (aAutoFail ? 'ÉCHEC' : ((aFR >= 0 ? '+' : '') + aFR))) + '</div><div class="fr-qual">' + aQual.label + '</div></div>';
-  } else {
-    html += '<div class="disabled-action">Perd son action (changement d\'arme)</div>';
-  }
-  html += '</div>';
-
-  // Defender score
-  html += '<div class="combatant-result defender"><div class="cr-name">&#128737; ' + esc(state.b.name) + '</div>';
-  if (bRaw !== null) {
-    bIsCat = (bRaw === 2);
-    bNat12 = (bRaw === 12);
-    bScore = bIsCat ? 2 : Math.max(bRaw, state.b.nm);
-    bAutoFail = (!bIsCat && !bNat12 && state.b.highestWoundLevel > 0 && bScore <= state.b.highestWoundLevel);
-    bFR = bScore - state.nd;
-    if (bNat12 && bFR < 0) bFR = 0;
-    if (bAutoFail) bFR = -99;
-    bQual = getFRQuality(bFR, bIsCat, bNat12);
-
-    html += '<div class="score-row"><span>Dés</span><span class="val">' + bRaw + '</span></div>';
-    if (bScore !== bRaw && !bIsCat) html += '<div class="score-row"><span>NM ' + state.b.nm + ' (compétence)</span><span class="val" style="color:var(--gold2);">Score remonté à ' + bScore + '</span></div>';
-    if (bAutoFail) {
-      var woundNameB = getBlessName(Math.ceil(state.b.highestWoundLevel / 2));
-      html += '<div class="score-row"><span>Blessure ' + woundNameB + ' (niv. ' + state.b.highestWoundLevel + ')</span><span class="val" style="color:var(--red2);">Score ' + bScore + ' ≤ ' + state.b.highestWoundLevel + ' → Échec auto</span></div>';
-    }
-    html += '<div class="score-row"><span>ND</span><span class="val">' + state.nd + '</span></div>';
-    html += '<div class="fr-display ' + bQual.cls + '"><div class="fr-label">Facteur de Réussite</div><div class="fr-val">' + (bIsCat ? '!!!' : (bAutoFail ? 'ÉCHEC' : ((bFR >= 0 ? '+' : '') + bFR))) + '</div><div class="fr-qual">' + bQual.label + '</div></div>';
-  } else {
-    html += '<div class="disabled-action">Perd son action (changement d\'arme)</div>';
-  }
-  html += '</div></div>';
-
-  // Initiative
-  var aSuccess = (aFR !== null && aFR >= 0 && !aIsCat && !aAutoFail) || aNat12;
-  var bSuccess = (bFR !== null && bFR >= 0 && !bIsCat && !bAutoFail) || bNat12;
-  var aActsFirst = true;
-
-  html += '<div class="initiative-banner">';
-  if (aRaw === null && bRaw === null) {
-    html += 'Les deux combattants changent d\'arme. Aucune action ce round.';
-  } else if (aSuccess && bSuccess) {
-    if (aFR > bFR) { html += '<strong>' + esc(state.a.name) + '</strong> agit en premier (FR: ' + aFR + ' > ' + bFR + ').'; aActsFirst = true; }
-    else if (bFR > aFR) { html += '<strong>' + esc(state.b.name) + '</strong> agit en premier (FR: ' + bFR + ' > ' + aFR + ').'; aActsFirst = false; }
-    else { html += 'Égalité (FR: ' + aFR + ') — actions simultanées.'; }
-  } else if (aSuccess) {
-    html += '<strong>' + esc(state.a.name) + '</strong> touche. ' + esc(state.b.name) + ' manque.';
-  } else if (bSuccess) {
-    html += '<strong>' + esc(state.b.name) + '</strong> touche. ' + esc(state.a.name) + ' manque.';
-    aActsFirst = false;
-  } else {
-    html += 'Aucun combattant ne touche son adversaire ce round.';
-  }
-  html += '</div>';
-
-  html += '</div></div>'; // close results-body, results-inner
-
-  // ---- Determine order ----
-  var first, second;
-  if (aActsFirst) {
-    first = { attacker: state.a, defender: state.b, raw: aRaw, score: aScore, fr: aFR, isCat: aIsCat, nat12: aNat12, success: aSuccess, autoFail: aAutoFail, prefix: 'a', targetPrefix: 'b' };
-    second = { attacker: state.b, defender: state.a, raw: bRaw, score: bScore, fr: bFR, isCat: bIsCat, nat12: bNat12, success: bSuccess, autoFail: bAutoFail, prefix: 'b', targetPrefix: 'a' };
-  } else {
-    first = { attacker: state.b, defender: state.a, raw: bRaw, score: bScore, fr: bFR, isCat: bIsCat, nat12: bNat12, success: bSuccess, autoFail: bAutoFail, prefix: 'b', targetPrefix: 'a' };
-    second = { attacker: state.a, defender: state.b, raw: aRaw, score: aScore, fr: aFR, isCat: aIsCat, nat12: aNat12, success: aSuccess, autoFail: aAutoFail, prefix: 'a', targetPrefix: 'b' };
-  }
-
-  // Store for encaissement phase
-  state._first = first;
-  state._second = second;
-  state._firstFR = first.fr;
-  state._secondFR = second.fr;
-  state._narrativeLines = [];
-  state._phase = 'first_damage'; // first_damage -> first_enc -> second_damage -> second_enc -> summary
-
-  // Narrative for special scores
-  if (aRaw === null) state._narrativeLines.push(narr('weaponChange', { name: state.a.name }));
-  if (bRaw === null) state._narrativeLines.push(narr('weaponChange', { name: state.b.name }));
-  if (aIsCat) state._narrativeLines.push(narr('catastrophe', { attacker: state.a.name }));
-  if (bIsCat) state._narrativeLines.push(narr('catastrophe', { attacker: state.b.name }));
-  if (aNat12 && !aIsCat) state._narrativeLines.push(narr('nat12', { attacker: state.a.name }));
-  if (bNat12 && !bIsCat) state._narrativeLines.push(narr('nat12', { attacker: state.b.name }));
-
-  // ---- B) First attacker's damage ----
-  html += buildDamageSection(first, 'B');
-
-  document.getElementById('results-body').innerHTML = html;
-  showScreen('results-screen');
-}
-
-function buildDamageSection(action, letter) {
-  var html = '';
-
-  if (action.raw === null) {
-    // Weapon change, no action
-    html += '<div class="damage-section"><h3>' + letter + ') Action de ' + esc(action.attacker.name) + '</h3>';
-    html += '<div class="disabled-action">Changement d\'arme — aucune action ce round.</div></div>';
-    // Move to next phase
-    setTimeout(function() { advancePhase(); }, 0);
-    return html;
-  }
-
-  if (action.isCat) {
-    html += '<div class="damage-section"><h3>' + letter + ') Action de ' + esc(action.attacker.name) + '</h3>';
-    html += '<div class="damage-row"><span class="dmg-tag tag-catastrophe">CATASTROPHE</span><span class="dmg-desc">Score de 2. Le personnage perd 1 point de chance et subit un incident critique.</span></div></div>';
-    setTimeout(function() { advancePhase(); }, 0);
-    return html;
-  }
-
-  if (!action.success) {
-    html += '<div class="damage-section"><h3>' + letter + ') Action de ' + esc(action.attacker.name) + '</h3>';
-    html += '<div class="damage-row"><span class="dmg-tag tag-rien">Raté</span><span class="dmg-desc">' + narr('attackMiss', { attacker: action.attacker.name }) + '</span></div></div>';
-    state._narrativeLines.push(narr('attackMiss', { attacker: action.attacker.name }));
-    setTimeout(function() { advancePhase(); }, 0);
-    return html;
-  }
-
-  // Compute damage
-  var w = action.attacker.weapon;
-  var wdata = WEAPON_DATA[w];
-  var targetProt = action.defender.protection.split('|').map(Number);
-  var protA = targetProt[0], protR = targetProt[1];
-  var fr = action.fr;
-  if (action.nat12 && fr < 0) fr = 0;
-
-  // Dégâts : base de l'arme, +1 si réussite exceptionnelle (FR > 4), -protection R
-  var frBonus = (fr > 4) ? 1 : 0;
-  var blessLevel = clamp(wdata.blessure + frBonus - protR, 0, 5);
-  var chocBase = getChocLevel(w, action.attacker.forStat);
-  var chocLevel = Math.max(0, chocBase - protA);
-
-  action._blessLevel = blessLevel;
-  action._chocLevel = chocLevel;
-
-  html += '<div class="damage-section"><h3>' + letter + ') ' + esc(action.attacker.name) + ' &#8594; ' + esc(action.defender.name) + '</h3>';
-
-  // Narrative
-  state._narrativeLines.push(narr('attackHit', { attacker: action.attacker.name }));
-
-  // Show damage
-  if (chocLevel > 0) {
-    var ci = Math.min(chocLevel, 4);
-    html += '<div class="damage-row"><span class="dmg-tag tag-choc">Choc C' + chocLevel + ' ' + CHOC_NAMES[ci] + '</span><span class="dmg-desc">' + CHOC_DESCS[ci] + '</span></div>';
-  }
-
-  if (blessLevel > 0) {
-    var bName = getBlessName(blessLevel);
-    var bCls = getBlessTagClass(blessLevel);
-    html += '<div class="damage-row"><span class="dmg-tag ' + bCls + '">Blessure B' + blessLevel + ' — ' + bName + '</span>';
-    // Wound description narrative
-    var wKey = 'woundB' + blessLevel;
-    if (NARR[wKey]) {
-      var wNarr = narr(wKey, { victim: action.defender.name });
-      html += '<span class="dmg-desc">' + wNarr + '</span>';
-      state._narrativeLines.push(wNarr);
-    }
-    html += '</div>';
-  }
-
-  if (chocLevel === 0 && blessLevel === 0) {
-    html += '<div class="damage-row"><span class="dmg-tag tag-rien">Protection totale</span><span class="dmg-desc">La protection absorbe tous les dégâts.</span></div>';
-  }
-
-  // Encaissement needed?
-  if (blessLevel > 0) {
-    html += '<div class="enc-section" id="enc-' + action.prefix + '">';
-    html += '<h3>&#127922; Encaissement — ' + esc(action.defender.name) + '</h3>';
-    html += '<div class="enc-entry-victim"><strong>' + esc(action.defender.name) + '</strong> encaisse le coup. Lancez un jet de FOR.</div>';
-    html += '<div class="enc-dice-instruction">' + getForInstruction(action.defender.forStat) + ' (FOR ' + (action.defender.forStat >= 0 ? '+' : '') + action.defender.forStat + ')</div>';
-    html += '<div style="margin-top:8px;"><input type="number" class="enc-score-input" id="enc-score-' + action.prefix + '" min="2" max="12" placeholder="?" oninput="checkEncReady(\'' + action.prefix + '\')">';
-    html += '<span style="font-family:\'Share Tech Mono\',monospace;font-size:11px;color:var(--text2);vertical-align:middle;">Score du jet de FOR</span></div>';
-    html += '<div style="text-align:center;margin-top:12px;"><button class="btn-resolve" id="btn-enc-' + action.prefix + '" disabled onclick="applyEncaissement(\'' + action.prefix + '\')">Appliquer</button></div>';
-    html += '</div>';
-    // Don't advance automatically — wait for encaissement
-  } else {
-    // No encaissement needed, advance
-    setTimeout(function() { advancePhase(); }, 0);
-  }
-
-  html += '</div>';
-  return html;
-}
-
-function checkEncReady(prefix) {
-  var val = parseInt(document.getElementById('enc-score-' + prefix).value);
-  var btn = document.getElementById('btn-enc-' + prefix);
-  btn.disabled = isNaN(val) || val < 2 || val > 12;
-}
-
-function applyEncaissement(prefix) {
-  var score = parseInt(document.getElementById('enc-score-' + prefix).value);
-  var action = (state._phase === 'first_damage' || state._phase === 'first_enc') ? state._first : state._second;
-
-  var modifier = 0;
-  var desc = '';
-  if (score >= 10) {
-    modifier = -1;
-    desc = narr('encReduce', { victim: action.defender.name });
-  } else if (score >= 5) {
-    modifier = 0;
-    desc = narr('encNormal', { victim: action.defender.name });
-  } else {
-    modifier = 1;
-    desc = narr('encAggrav', { victim: action.defender.name });
-  }
-
-  var finalBless = clamp(action._blessLevel + modifier, 0, 5);
-  state._narrativeLines.push(desc);
-
-  // Apply wound
-  if (finalBless > 0) {
-    addWound(action.defender.wounds, finalBless);
-    action.defender.highestWoundLevel = computeHighestWound(action.defender.wounds);
-  }
-
-  // Replace encaissement section with result
-  var encEl = document.getElementById('enc-' + prefix);
-  var resultHTML = '<h3>&#127922; Encaissement — Résultat</h3>';
-  resultHTML += '<div class="enc-entry-victim">Score de FOR : <strong>' + score + '</strong></div>';
-  if (modifier === -1) {
-    resultHTML += '<div style="color:#60d060;font-family:\'Share Tech Mono\',monospace;font-size:13px;margin:6px 0;">Résistance ! B' + action._blessLevel + ' \u2192 B' + finalBless + '</div>';
-  } else if (modifier === 0) {
-    resultHTML += '<div style="color:var(--text2);font-family:\'Share Tech Mono\',monospace;font-size:13px;margin:6px 0;">Normal. B' + finalBless + ' inchangée.</div>';
-  } else {
-    resultHTML += '<div style="color:var(--red2);font-family:\'Share Tech Mono\',monospace;font-size:13px;margin:6px 0;">Aggravation ! B' + action._blessLevel + ' \u2192 B' + finalBless + '</div>';
-  }
-
-  if (finalBless > 0) {
-    resultHTML += '<div style="margin-top:8px;"><span class="dmg-tag ' + getBlessTagClass(finalBless) + '">Blessure finale : B' + finalBless + ' ' + getBlessName(finalBless) + '</span></div>';
-  }
-
-  // Updated wound tracker
-  resultHTML += '<div class="wound-tracker" style="margin-top:10px;"><div class="wound-tracker-title">État des blessures de ' + esc(action.defender.name) + '</div><div class="wound-pips">' + renderWoundPips(action.defender.wounds) + '</div></div>';
-
-  // Check neutralization
-  var neutralized = false;
-  if (action.defender.wounds[4] >= 2) {
-    resultHTML += '<div style="text-align:center;margin-top:12px;padding:16px;background:rgba(200,20,20,0.2);border:2px solid #ff4040;border-radius:4px;font-family:\'Cinzel\',serif;font-size:18px;color:#ff4040;letter-spacing:0.15em;">MORT</div>';
-    action.defender.isDown = true;
-    neutralized = true;
-  } else if (action.defender.wounds[4] >= 1) {
-    var isSimultaneous5 = (state._firstFR === state._secondFR);
-    if (isSimultaneous5 && state._phase !== 'second_enc') {
-      resultHTML += '<div style="text-align:center;margin-top:12px;padding:16px;background:rgba(200,20,20,0.15);border:2px solid #ff4040;border-radius:4px;font-family:\'Cinzel\',serif;font-size:16px;color:#ff4040;letter-spacing:0.15em;">AGONIE (après actions simultanées)</div>';
-      action.defender.isDown = true;
-      neutralized = false; // Don't skip — simultaneous
-    } else {
-      resultHTML += '<div style="text-align:center;margin-top:12px;padding:16px;background:rgba(200,20,20,0.15);border:2px solid #ff4040;border-radius:4px;font-family:\'Cinzel\',serif;font-size:16px;color:#ff4040;letter-spacing:0.15em;">AGONIE — Sans soins immédiats, la mort est certaine. Riposte annulée.</div>';
-      action.defender.isDown = true;
-      neutralized = true;
-    }
-    var wNarr5 = narr('woundB5', { victim: action.defender.name });
-    state._narrativeLines.push(wNarr5);
-  } else if (action.defender.wounds[3] >= 1) {
-    var isSimultaneous = (state._firstFR === state._secondFR);
-    if (isSimultaneous && state._phase !== 'second_enc') {
-      resultHTML += '<div style="text-align:center;margin-top:12px;padding:16px;background:rgba(220,50,50,0.12);border:2px solid #dd5050;border-radius:4px;font-family:\'Cinzel\',serif;font-size:16px;color:#dd5050;letter-spacing:0.15em;">HORS COMBAT (après actions simultanées)</div>';
-      action.defender.isDown = true;
-      neutralized = false; // Don't skip the second action — simultaneous!
-    } else {
-      resultHTML += '<div style="text-align:center;margin-top:12px;padding:16px;background:rgba(220,50,50,0.12);border:2px solid #dd5050;border-radius:4px;font-family:\'Cinzel\',serif;font-size:16px;color:#dd5050;letter-spacing:0.15em;">HORS COMBAT — Riposte annulée.</div>';
-      action.defender.isDown = true;
-      neutralized = true;
-    }
-    var wNarr4 = narr('woundB4', { victim: action.defender.name });
-    state._narrativeLines.push(wNarr4);
-  }
-
-  encEl.innerHTML = resultHTML;
-
-  if (neutralized) {
-    // Skip second attacker, go to summary
-    state._phase = 'summary';
-    setTimeout(function() { buildSummary(); }, 100);
-  } else {
-    advancePhase();
-  }
-}
-
-function advancePhase() {
-  if (state._phase === 'first_damage') {
-    state._phase = 'second_damage';
-    // Build second attacker section
-    var secondAction = state._second;
-    if (secondAction.defender.isDown) {
-      // Defender was neutralized by first attack, skip
-      state._phase = 'summary';
-      setTimeout(function() { buildSummary(); }, 100);
-      return;
-    }
-    var container = document.getElementById('results-body');
-    var sectionHTML = buildDamageSection(secondAction, 'C');
-    container.insertAdjacentHTML('beforeend', sectionHTML);
-  } else if (state._phase === 'second_damage') {
-    state._phase = 'summary';
-    setTimeout(function() { buildSummary(); }, 100);
-  } else if (state._phase === 'first_enc') {
-    // This shouldn't happen via advancePhase
-  }
-}
-
-function buildSummary() {
-  var container = document.getElementById('results-body');
-  var html = '';
-
-  // Round summary section
-  html += '<div class="damage-section"><h3>D) Bilan du Round ' + state.round + '</h3>';
-
-  // Both combatants wound state
-  html += '<div class="results-columns">';
-  html += '<div class="combatant-result attacker"><div class="cr-name">&#9876; ' + esc(state.a.name) + '</div>';
-  html += '<div class="wound-tracker"><div class="wound-tracker-title">Blessures</div><div class="wound-pips">' + renderWoundPips(state.a.wounds) + '</div></div>';
-  if (state.a.isDown) html += '<div style="color:var(--red2);font-family:\'Cinzel\',serif;font-size:14px;text-align:center;margin-top:8px;letter-spacing:0.1em;">' + (state.a.wounds[4] >= 1 ? 'AGONIE' : 'HORS COMBAT') + '</div>';
-  html += '</div>';
-
-  html += '<div class="combatant-result defender"><div class="cr-name">&#128737; ' + esc(state.b.name) + '</div>';
-  html += '<div class="wound-tracker"><div class="wound-tracker-title">Blessures</div><div class="wound-pips">' + renderWoundPips(state.b.wounds) + '</div></div>';
-  if (state.b.isDown) html += '<div style="color:var(--red2);font-family:\'Cinzel\',serif;font-size:14px;text-align:center;margin-top:8px;letter-spacing:0.1em;">' + (state.b.wounds[4] >= 1 ? 'AGONIE' : 'HORS COMBAT') + '</div>';
-  html += '</div></div>';
-
-  html += '</div>';
-
-  // Narrative
-  // Add round-end narrative
-  if (!state.a.isDown && !state.b.isDown) {
-    state._narrativeLines.push(narr('roundEnd', { n: '' + state.round }));
-  }
-
-  html += '<div class="combat-log"><div class="log-title">&#9889; Narration</div>';
-  state._narrativeLines.forEach(function(line) {
-    html += '<div class="log-entry"><em>' + line + '</em></div>';
-  });
-  html += '</div>';
-
-  // Combat over?
-  if (state.a.isDown || state.b.isDown) {
-    state.combatOver = true;
-    var winner = state.a.isDown ? state.b : state.a;
-    var loser = state.a.isDown ? state.a : state.b;
-    state.winner = winner;
-
-    var endNarr = pick(NARR.winGeneric)
-      .replace('[winner]', winner.name)
-      .replace('[loser]', loser.name);
-
-    html += '<div class="combat-end-banner"><h2>Combat Terminé</h2>';
-    html += '<p><strong>' + esc(winner.name) + '</strong> l\'emporte.</p>';
-    html += '<p style="margin-top:10px;">' + endNarr + '</p></div>';
-
-    html += '<div style="text-align:center;margin-top:20px;">';
-    html += '<button class="btn-launch" onclick="backToSetup()">&#9876; Nouveau Combat</button></div>';
-  } else {
-    // Continue combat
-    html += '<div style="text-align:center;margin-top:20px;">';
-    html += '<button class="btn-launch" onclick="nextRound()">Round Suivant &#8594;</button></div>';
-  }
-
-  container.insertAdjacentHTML('beforeend', html);
-}
-
-function nextRound() {
-  // Save prevWeapon for next round's weapon change detection
-  state.a.prevWeapon = state.a.weapon;
-  state.b.prevWeapon = state.b.weapon;
-  state.a.weaponChanged = false;
-  state.b.weaponChanged = false;
-
-  // Update highest wound levels
-  state.a.highestWoundLevel = computeHighestWound(state.a.wounds);
-  state.b.highestWoundLevel = computeHighestWound(state.b.wounds);
-
-  goToConfig();
-}
-
 function esc(s) {
   var d = document.createElement('div');
   d.textContent = s;
   return d.innerHTML;
 }
 
+// Pose une posture active SANS déclencher updateNDs (utilisé pendant le rendu des cartes).
+function setPostureSilent(groupId, val) {
+  var btns = document.querySelectorAll('#' + groupId + ' .posture-btn');
+  btns.forEach(function(b) {
+    b.classList.remove('active');
+    if (parseInt(b.dataset.val) === val) b.classList.add('active');
+  });
+}
+
 // ============================================================
-// INIT — posture click handlers via event delegation
+// SETUP — DEUX CAMPS À ROSTER DYNAMIQUE
+// ============================================================
+
+var CREATURE_OPTIONS =
+  '<option value="" disabled selected>— Choisir —</option>' +
+  '<option value="joueur">Joueur (saisie libre)</option>' +
+  '<option value="lying-figure">Lying Figure (La Figure Allongée)</option>' +
+  '<option value="mannequin">Mannequin</option>' +
+  '<option value="nurse">Nurse (L\'Infirmière)</option>' +
+  '<option value="abstract-daddy">Abstract Daddy (Idéal du Père)</option>' +
+  '<option value="pyramid-head">Pyramid Head (Le Bourreau)</option>';
+
+function addSlot(camp) {
+  setupRoster[camp].push({ key: null });
+  renderRoster(camp);
+}
+
+function removeSlot(camp, i) {
+  setupRoster[camp].splice(i, 1);
+  renderRoster(camp);
+  updateLaunchBtn();
+}
+
+function onSlotSelect(camp, i) {
+  var sel = document.getElementById('slot-' + camp + '-' + i);
+  setupRoster[camp][i].key = sel.value || null;
+  renderRoster(camp);
+  updateLaunchBtn();
+}
+
+function renderRoster(camp) {
+  var list = document.getElementById('roster-' + camp);
+  var html = '';
+  setupRoster[camp].forEach(function(slot, i) {
+    html += '<div class="roster-row"><div class="roster-main">' +
+            '<select class="setup-select" id="slot-' + camp + '-' + i + '" onchange="onSlotSelect(\'' + camp + '\',' + i + ')">' + CREATURE_OPTIONS + '</select>' +
+            '</div><button class="roster-remove" onclick="removeSlot(\'' + camp + '\',' + i + ')" title="Retirer">&times;</button></div>';
+  });
+  list.innerHTML = html;
+  // restaurer les valeurs choisies (innerHTML les réinitialise)
+  setupRoster[camp].forEach(function(slot, i) {
+    if (slot.key) document.getElementById('slot-' + camp + '-' + i).value = slot.key;
+  });
+}
+
+function updateLaunchBtn() {
+  var okX = setupRoster.X.some(function(s) { return s.key; });
+  var okY = setupRoster.Y.some(function(s) { return s.key; });
+  document.getElementById('btn-launch').disabled = !(okX && okY);
+}
+
+function initCombatant(camp, key, indexInCamp) {
+  var o = {
+    id: 'c' + (state._idSeq++),
+    camp: camp,
+    name: '', cmb: 0, forStat: 0, nm: 0,
+    weapon: 'poing-moyen', prevWeapon: null, weaponChanged: false,
+    posture: 0, protection: '0|0', target: null,
+    wounds: [0, 0, 0, 0, 0], highestWoundLevel: 0, isDown: false,
+    isCreature: false, creatureKey: null
+  };
+  if (key === 'joueur') {
+    o.name = camp + (indexInCamp + 1); // X1, Y2… éditable au round
+  } else if (CREATURES[key]) {
+    var c = CREATURES[key];
+    o.isCreature = true; o.creatureKey = key;
+    o.name = c.name;
+    o.cmb = c.cmb; o.forStat = c.for; o.nm = c.nm || 0;
+    o.weapon = c.defaultWeapon; o.protection = c.defaultProtection;
+    o.posture = -1; // créatures offensives par défaut
+  }
+  return o;
+}
+
+function launchCombat() {
+  state.combatants = [];
+  state._idSeq = 0;
+  state.round = 0;
+  state.combatOver = false;
+  state.winningCamp = null;
+
+  ['X', 'Y'].forEach(function(camp) {
+    var n = 0;
+    setupRoster[camp].forEach(function(slot) {
+      if (slot.key) { state.combatants.push(initCombatant(camp, slot.key, n)); n++; }
+    });
+  });
+
+  assignDefaultTargets();
+  goToRound();
+}
+
+function assignDefaultTargets() {
+  state.combatants.forEach(function(c) {
+    if (c.isDown) return;
+    var foes = livingOf(opposingCamp(c.camp));
+    var cur = c.target ? getCombatant(c.target) : null;
+    if (!cur || cur.isDown || cur.camp === c.camp) {
+      c.target = foes.length ? foes[0].id : null;
+    }
+  });
+}
+
+// ============================================================
+// TRANSITIONS D'ÉCRAN
+// ============================================================
+
+function showScreen(id) {
+  ['setup-screen', 'round-screen', 'results-screen'].forEach(function(s) {
+    document.getElementById(s).classList.add('hidden');
+  });
+  document.getElementById(id).classList.remove('hidden');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function backToSetup() { showScreen('setup-screen'); }
+
+// ============================================================
+// ÉCRAN DU ROUND — CARTOUCHES (config + jet de toucher fusionnés)
+// ============================================================
+
+function goToRound() {
+  state.round++;
+  assignDefaultTargets();
+
+  var grid = document.getElementById('cards-grid');
+  var html = '';
+  ['X', 'Y'].forEach(function(camp) {
+    var living = livingOf(camp);
+    if (!living.length) return;
+    html += '<div class="camp-divider camp-' + camp.toLowerCase() + '">' + CAMPS[camp].label + '</div>';
+    living.forEach(function(c) { html += buildCombatantCard(c); });
+  });
+  grid.innerHTML = html;
+
+  allLiving().forEach(function(c) { populateCard(c); });
+
+  document.getElementById('config-round-display').textContent = 'ROUND ' + state.round;
+  updateNDs();
+  checkRoundReady();
+  showScreen('round-screen');
+}
+
+function buildCombatantCard(c) {
+  var p = CAMPS[c.camp].cls;
+  var pg = 'card-' + c.id + '-posture';
+  var h = '';
+  h += '<div class="panel ' + p + '" id="card-' + c.id + '">';
+  h += '<div class="panel-title"><span class="icon">' + CAMPS[c.camp].icon + '</span> <span id="card-' + c.id + '-title"></span></div>';
+
+  if (c.isCreature && CREATURES[c.creatureKey]) {
+    var cr = CREATURES[c.creatureKey];
+    var pw = '';
+    cr.powers.forEach(function(pp) { pw += '<span class="creature-power-tag">' + esc(pp) + '</span>'; });
+    h += '<div class="tips-block">' +
+         '<button type="button" class="tips-toggle" onclick="toggleTips(\'' + c.id + '\')">&#9432; Infos meneur — afficher</button>' +
+         '<div class="tips-panel hidden" id="card-' + c.id + '-tips">' +
+         '<div class="creature-card-type">' + esc(cr.type) + '</div>' +
+         '<div class="creature-card-desc">' + esc(cr.description) + '</div>' +
+         '<div class="creature-powers">' + pw + '</div>' +
+         '</div></div>';
+  }
+
+  h += '<div class="field"><label>Nom</label><input type="text" id="card-' + c.id + '-name" placeholder="Nom du combattant"></div>';
+
+  h += '<div class="row3">' +
+       '<div class="field"><label>CMB</label><input type="number" id="card-' + c.id + '-cmb" min="-2" max="2" value="0" step="1"></div>' +
+       '<div class="field"><label>FOR</label><input type="number" id="card-' + c.id + '-for" min="-2" max="2" value="0" step="1"></div>' +
+       '<div class="field" id="card-' + c.id + '-nm-field"><label>NM</label><input type="number" id="card-' + c.id + '-nm" min="0" max="9" value="0" step="1"></div>' +
+       '</div>';
+
+  h += '<div class="field"><label>Posture</label><div class="posture-group" id="' + pg + '">' +
+       '<div class="posture-btn" data-val="-1" onclick="setPosture(\'' + pg + '\',-1)">Offensive<br><small>-1 ND</small></div>' +
+       '<div class="posture-btn active" data-val="0" onclick="setPosture(\'' + pg + '\',0)">Neutre<br><small>&#177;0</small></div>' +
+       '<div class="posture-btn" data-val="+1" onclick="setPosture(\'' + pg + '\',1)">Défensive<br><small>+1 ND</small></div>' +
+       '</div></div>';
+
+  h += '<div class="field"><label>Arme</label><select id="card-' + c.id + '-weapon" onchange="onWeaponChange(\'' + c.id + '\')"></select>' +
+       '<div class="weapon-change-warning hidden" id="card-' + c.id + '-weapon-warning">Changement d\'arme : perd son action ce round</div></div>';
+
+  h += '<div class="field"><label>Protection</label><select id="card-' + c.id + '-protection">' +
+       '<option value="0|0">Aucune</option>' +
+       '<option value="0|1">Blouson de cuir — R1</option>' +
+       '<option value="1|1">Manteau de fourrure — R1 A1</option>' +
+       '<option value="0|2">Cotte de maille — R2</option>' +
+       '<option value="1|3">Gilet pare-balle — R3 A1</option>' +
+       '<option value="1|2">Casque intégral — R2 A1</option>' +
+       '</select></div>';
+
+  h += '<div class="field"><label>Cible</label><select id="card-' + c.id + '-target" onchange="onTargetChange(\'' + c.id + '\')"></select></div>';
+
+  h += '<div class="wound-tracker" id="card-' + c.id + '-wounds"><div class="wound-tracker-title">Blessures accumulées</div>' +
+       '<div class="wound-pips" id="card-' + c.id + '-wound-pips"></div>' +
+       '<div class="wound-penalty hidden" id="card-' + c.id + '-wound-penalty"></div></div>';
+
+  h += '<div class="dice-preview" id="card-' + c.id + '-dice-hint">Lance 2D6, garde la somme</div>';
+
+  h += '<div class="center-panel" style="margin-top:12px;"><div class="nd-display"><div class="nd-block">' +
+       '<div class="big" id="card-' + c.id + '-nd">7</div><div class="lbl">ND vs cible</div></div></div></div>';
+
+  h += '<div class="card-tohit-wrap">' +
+       '<div class="dice-instruction" id="card-' + c.id + '-instruction"></div>' +
+       '<div id="card-' + c.id + '-nm-info" class="nm-reminder" style="display:none;"></div>' +
+       '<div id="card-' + c.id + '-wound-reminder" class="nm-reminder" style="display:none;"></div>' +
+       '<div id="card-' + c.id + '-weapon-change-msg" class="disabled-action" style="display:none;">Changement d\'arme — perd son action ce round.</div>' +
+       '<div id="card-' + c.id + '-tohit-area">' +
+       '<div class="dice-score-label">Jet de toucher (somme des 2 dés gardés)</div>' +
+       '<input type="number" class="dice-score-input" id="card-' + c.id + '-tohit" min="2" max="12" placeholder="?" oninput="checkRoundReady()">' +
+       '</div></div>';
+
+  h += '</div>';
+  return h;
+}
+
+function populateCard(c) {
+  var id = c.id;
+  document.getElementById('card-' + id + '-title').textContent = c.isCreature ? c.name : (CAMPS[c.camp].label + ' — combattant');
+  document.getElementById('card-' + id + '-name').value = c.name;
+  document.getElementById('card-' + id + '-cmb').value = c.cmb;
+  document.getElementById('card-' + id + '-for').value = c.forStat;
+  document.getElementById('card-' + id + '-nm').value = c.nm;
+
+  var isCr = c.isCreature;
+  document.getElementById('card-' + id + '-name').disabled = isCr;
+  document.getElementById('card-' + id + '-cmb').disabled = isCr;
+  document.getElementById('card-' + id + '-for').disabled = isCr;
+  document.getElementById('card-' + id + '-nm').disabled = isCr;
+  document.getElementById('card-' + id + '-protection').disabled = isCr;
+
+  populateWeaponSelect(document.getElementById('card-' + id + '-weapon'), c.creatureKey);
+  document.getElementById('card-' + id + '-weapon').value = c.weapon;
+  document.getElementById('card-' + id + '-protection').value = c.protection;
+
+  setPostureSilent('card-' + id + '-posture', c.posture);
+  populateTargetSelect(c);
+
+  document.getElementById('card-' + id + '-wound-pips').innerHTML = renderWoundPips(c.wounds);
+  var penEl = document.getElementById('card-' + id + '-wound-penalty');
+  var penTxt = renderWoundPenalty(c.wounds);
+  if (penTxt) { penEl.textContent = penTxt; penEl.classList.remove('hidden'); }
+  else { penEl.classList.add('hidden'); }
+
+  document.getElementById('card-' + id + '-dice-hint').textContent = getDiceHint(c.cmb);
+  document.getElementById('card-' + id + '-instruction').innerHTML = getDiceInstruction(c.cmb);
+
+  var nmEl = document.getElementById('card-' + id + '-nm-info');
+  if (c.nm > 0) { nmEl.style.display = 'inline-block'; nmEl.innerHTML = 'Score plancher garanti : <strong>' + c.nm + '</strong>'; }
+  else { nmEl.style.display = 'none'; }
+
+  c.highestWoundLevel = computeHighestWound(c.wounds);
+  var wrEl = document.getElementById('card-' + id + '-wound-reminder');
+  if (c.highestWoundLevel > 0) {
+    wrEl.style.display = 'inline-block';
+    wrEl.innerHTML = 'Rappel : tout score ≤ <strong>' + c.highestWoundLevel + '</strong> est un échec automatique';
+    wrEl.style.background = 'rgba(220,50,50,0.1)'; wrEl.style.borderColor = 'rgba(220,50,50,0.25)'; wrEl.style.color = 'var(--red2)';
+  } else { wrEl.style.display = 'none'; }
+
+  document.getElementById('card-' + id + '-weapon-warning').classList.add('hidden');
+  c.weaponChanged = false;
+  document.getElementById('card-' + id + '-weapon-change-msg').style.display = 'none';
+  document.getElementById('card-' + id + '-tohit-area').style.display = 'block';
+  document.getElementById('card-' + id + '-tohit').value = '';
+}
+
+function populateTargetSelect(c) {
+  var sel = document.getElementById('card-' + c.id + '-target');
+  var foes = livingOf(opposingCamp(c.camp));
+  var html = '';
+  foes.forEach(function(f) { html += '<option value="' + f.id + '">' + esc(f.name || f.id) + '</option>'; });
+  sel.innerHTML = html;
+  var cur = c.target ? getCombatant(c.target) : null;
+  if (cur && !cur.isDown && cur.camp !== c.camp) { sel.value = c.target; }
+  else if (foes.length) { c.target = foes[0].id; sel.value = c.target; }
+}
+
+function onTargetChange(id) {
+  var c = getCombatant(id);
+  c.target = document.getElementById('card-' + id + '-target').value;
+  updateNDs();
+}
+
+function toggleTips(id) {
+  var panel = document.getElementById('card-' + id + '-tips');
+  if (!panel) return;
+  var hidden = panel.classList.toggle('hidden');
+  var btn = panel.previousElementSibling;
+  if (btn && btn.classList.contains('tips-toggle')) {
+    btn.innerHTML = '&#9432; Infos meneur — ' + (hidden ? 'afficher' : 'masquer');
+  }
+}
+
+function onWeaponChange(id) {
+  var c = getCombatant(id);
+  var newW = document.getElementById('card-' + id + '-weapon').value;
+  var warn = document.getElementById('card-' + id + '-weapon-warning');
+  if (c.prevWeapon !== null && newW !== c.prevWeapon) { warn.classList.remove('hidden'); c.weaponChanged = true; }
+  else { warn.classList.add('hidden'); c.weaponChanged = false; }
+}
+
+function updateNDs() {
+  allLiving().forEach(function(c) {
+    var pos = getPostureVal('card-' + c.id + '-posture');
+    var tgt = getCombatant(c.target);
+    var tgtPos = 0;
+    if (tgt) {
+      var tEl = document.getElementById('card-' + tgt.id + '-posture');
+      tgtPos = tEl ? getPostureVal('card-' + tgt.id + '-posture') : tgt.posture;
+    }
+    var ndEl = document.getElementById('card-' + c.id + '-nd');
+    if (ndEl) ndEl.textContent = 7 + getPostureMod(pos, tgtPos);
+    var dh = document.getElementById('card-' + c.id + '-dice-hint');
+    var cmbEl = document.getElementById('card-' + c.id + '-cmb');
+    if (dh && cmbEl) dh.textContent = getDiceHint(parseInt(cmbEl.value) || 0);
+  });
+}
+
+function checkRoundReady() {
+  var ready = true;
+  allLiving().forEach(function(c) {
+    if (c.weaponChanged) return;
+    var v = parseInt(document.getElementById('card-' + c.id + '-tohit').value);
+    if (isNaN(v) || v < 2 || v > 12) ready = false;
+  });
+  document.getElementById('btn-resolve-round').disabled = !ready;
+}
+
+function readCardsIntoState() {
+  allLiving().forEach(function(c) {
+    var id = c.id;
+    if (!c.isCreature) {
+      c.name = document.getElementById('card-' + id + '-name').value || (CAMPS[c.camp].label + ' ' + id);
+      c.cmb = clamp(parseInt(document.getElementById('card-' + id + '-cmb').value) || 0, -2, 2);
+      c.forStat = clamp(parseInt(document.getElementById('card-' + id + '-for').value) || 0, -2, 2);
+      c.nm = clamp(parseInt(document.getElementById('card-' + id + '-nm').value) || 0, 0, 9);
+      c.protection = document.getElementById('card-' + id + '-protection').value;
+    }
+    c.posture = getPostureVal('card-' + id + '-posture');
+    var tEl = document.getElementById('card-' + id + '-target');
+    if (tEl && tEl.value) c.target = tEl.value;
+    var newW = document.getElementById('card-' + id + '-weapon').value;
+    if (c.prevWeapon !== null && newW !== c.prevWeapon) c.weaponChanged = true;
+    c.weapon = newW;
+    c.highestWoundLevel = computeHighestWound(c.wounds);
+  });
+}
+
+// ============================================================
+// RÉSOLUTION — FILE F.R. DÉCROISSANT
+// ============================================================
+
+function computeAction(c) {
+  var act = { attackerId: c.id, targetId: c.target, raw: null, weaponChanged: c.weaponChanged };
+  if (c.weaponChanged) return act;
+  var raw = parseInt(document.getElementById('card-' + c.id + '-tohit').value);
+  if (isNaN(raw)) return act;
+  var tgt = getCombatant(c.target);
+  var nd = 7 + getPostureMod(c.posture, (tgt ? tgt.posture : 0));
+  act.raw = raw;
+  act.nd = nd;
+  act.isCat = (raw === 2);
+  act.nat12 = (raw === 12);
+  act.score = act.isCat ? 2 : Math.max(raw, c.nm);
+  act.autoFail = (!act.isCat && !act.nat12 && c.highestWoundLevel > 0 && act.score <= c.highestWoundLevel);
+  act.fr = act.score - nd;
+  if (act.nat12 && act.fr < 0) act.fr = 0;
+  if (act.autoFail) act.fr = -99;
+  act.success = (act.fr >= 0 && !act.isCat && !act.autoFail) || act.nat12;
+  act.quality = getFRQuality(act.fr, act.isCat, act.nat12);
+  return act;
+}
+
+function resolveRound() {
+  readCardsIntoState();
+
+  var actions = allLiving().map(function(c) { return computeAction(c); });
+
+  var html = '';
+  html += '<div class="round-banner"><div class="round-number">RÉSULTATS — ROUND ' + state.round + '</div></div>';
+  html += buildScoresTable(actions);
+
+  var acting = actions.filter(function(a) { return a.raw !== null; });
+  acting.sort(function(x, y) { return y.fr - x.fr; });
+  var groups = [];
+  acting.forEach(function(a) {
+    var g = groups[groups.length - 1];
+    if (g && g[0].fr === a.fr) g.push(a);
+    else groups.push([a]);
+  });
+
+  html += buildInitiativeBanner(groups);
+
+  state._queue = groups;
+  state._gIndex = 0;
+  state._aIndex = 0;
+  state._downAtGroupStart = null;
+  state._narrativeLines = [];
+
+  document.getElementById('results-body').innerHTML = html;
+  showScreen('results-screen');
+  processNextAction();
+}
+
+function buildScoresTable(actions) {
+  var h = '<div class="results-inner"><div class="results-header"><span>Scores et Facteurs de Réussite</span></div><div class="results-body"><div class="results-columns">';
+  actions.forEach(function(a) {
+    var c = getCombatant(a.attackerId);
+    var cls = CAMPS[c.camp].cls;
+    h += '<div class="combatant-result ' + cls + '"><div class="cr-name">' + CAMPS[c.camp].icon + ' ' + esc(c.name) + '</div>';
+    if (a.raw === null) {
+      h += '<div class="disabled-action">Perd son action (changement d\'arme)</div>';
+    } else {
+      var tgt = getCombatant(a.targetId);
+      h += '<div class="score-row"><span>Cible</span><span class="val">' + esc(tgt ? tgt.name : '—') + '</span></div>';
+      h += '<div class="score-row"><span>Dés</span><span class="val">' + a.raw + '</span></div>';
+      if (a.score !== a.raw && !a.isCat) h += '<div class="score-row"><span>NM ' + c.nm + '</span><span class="val" style="color:var(--gold2);">Score → ' + a.score + '</span></div>';
+      if (a.autoFail) h += '<div class="score-row"><span>Blessure (niv. ' + c.highestWoundLevel + ')</span><span class="val" style="color:var(--red2);">Score ' + a.score + ' ≤ ' + c.highestWoundLevel + ' → Échec auto</span></div>';
+      h += '<div class="score-row"><span>ND</span><span class="val">' + a.nd + '</span></div>';
+      h += '<div class="fr-display ' + a.quality.cls + '"><div class="fr-label">Facteur de Réussite</div><div class="fr-val">' + (a.isCat ? '!!!' : (a.autoFail ? 'ÉCHEC' : ((a.fr >= 0 ? '+' : '') + a.fr))) + '</div><div class="fr-qual">' + a.quality.label + '</div></div>';
+    }
+    h += '</div>';
+  });
+  h += '</div></div></div>';
+  return h;
+}
+
+function buildInitiativeBanner(groups) {
+  var h = '<div class="initiative-banner">';
+  if (!groups.length) {
+    h += 'Aucune action ce round.';
+  } else {
+    var order = groups.map(function(g) {
+      var names = g.map(function(a) { return esc(getCombatant(a.attackerId).name); });
+      var label = names.join(' &amp; ') + ' (FR ' + (g[0].fr >= 0 ? '+' : '') + g[0].fr + ')';
+      return g.length > 1 ? '[' + label + ' — simultané]' : label;
+    });
+    h += 'Ordre d\'action (F.R. décroissant) : ' + order.join(' &rarr; ') + '.';
+  }
+  h += '</div>';
+  return h;
+}
+
+function processNextAction() {
+  var groups = state._queue;
+  if (state._gIndex >= groups.length) { buildSummary(); return; }
+
+  var group = groups[state._gIndex];
+
+  if (state._aIndex === 0) {
+    if (campDefeated('X') || campDefeated('Y')) { buildSummary(); return; }
+    state._downAtGroupStart = {};
+    state.combatants.forEach(function(c) { if (c.isDown) state._downAtGroupStart[c.id] = true; });
+  }
+
+  if (state._aIndex >= group.length) {
+    state._gIndex++;
+    state._aIndex = 0;
+    processNextAction();
+    return;
+  }
+
+  var action = group[state._aIndex];
+  var attacker = getCombatant(action.attackerId);
+  var container = document.getElementById('results-body');
+
+  if (state._downAtGroupStart[action.attackerId]) {
+    container.insertAdjacentHTML('beforeend', '<div class="damage-section"><h3>Action de ' + esc(attacker.name) + '</h3><div class="action-skip">Neutralisé avant d\'agir — action annulée.</div></div>');
+    state._aIndex++; processNextAction(); return;
+  }
+
+  var target = getCombatant(action.targetId);
+  if (!target || state._downAtGroupStart[action.targetId]) {
+    container.insertAdjacentHTML('beforeend', '<div class="damage-section"><h3>Action de ' + esc(attacker.name) + '</h3><div class="action-skip">Cible déjà neutralisée — action perdue.</div></div>');
+    state._aIndex++; processNextAction(); return;
+  }
+
+  var res = buildDamageSection(action);
+  container.insertAdjacentHTML('beforeend', res.html);
+  if (res.needsEnc) return; // attend applyEncaissement
+  state._aIndex++; processNextAction();
+}
+
+function buildDamageSection(action) {
+  var attacker = getCombatant(action.attackerId);
+  var defender = getCombatant(action.targetId);
+  var pref = action.attackerId;
+  var html = '';
+
+  if (action.isCat) {
+    html += '<div class="damage-section"><h3>Action de ' + esc(attacker.name) + '</h3>';
+    html += '<div class="damage-row"><span class="dmg-tag tag-catastrophe">CATASTROPHE</span><span class="dmg-desc">Score de 2. Le personnage perd 1 point de chance et subit un incident critique.</span></div></div>';
+    state._narrativeLines.push(narr('catastrophe', { attacker: attacker.name }));
+    return { html: html, needsEnc: false };
+  }
+
+  if (!action.success) {
+    var miss = narr('attackMiss', { attacker: attacker.name, defender: defender.name, weapon: weaponLabel(attacker.weapon) });
+    html += '<div class="damage-section"><h3>Action de ' + esc(attacker.name) + '</h3>';
+    html += '<div class="damage-row"><span class="dmg-tag tag-rien">Raté</span><span class="dmg-desc">' + miss + '</span></div></div>';
+    state._narrativeLines.push(miss);
+    return { html: html, needsEnc: false };
+  }
+
+  var w = attacker.weapon;
+  var wdata = WEAPON_DATA[w];
+  var targetProt = defender.protection.split('|').map(Number);
+  var protA = targetProt[0], protR = targetProt[1];
+  var fr = action.fr; if (action.nat12 && fr < 0) fr = 0;
+  var frBonus = (fr > 4) ? 1 : 0;
+  var blessLevel = clamp(wdata.blessure + frBonus - protR, 0, 5);
+  var chocBase = getChocLevel(w, attacker.forStat);
+  var chocLevel = Math.max(0, chocBase - protA);
+  action._blessLevel = blessLevel;
+  action._chocLevel = chocLevel;
+
+  html += '<div class="damage-section"><h3>' + esc(attacker.name) + ' &#8594; ' + esc(defender.name) + '</h3>';
+  state._narrativeLines.push(narr(action.fr > 4 ? 'attackHitExceptional' : 'attackHit', { attacker: attacker.name, defender: defender.name, weapon: weaponLabel(attacker.weapon) }));
+
+  if (chocLevel > 0) {
+    var ci = Math.min(chocLevel, 4);
+    html += '<div class="damage-row"><span class="dmg-tag tag-choc">Choc C' + chocLevel + ' ' + CHOC_NAMES[ci] + '</span><span class="dmg-desc">' + CHOC_DESCS[ci] + '</span></div>';
+  }
+  if (blessLevel > 0) {
+    var bName = getBlessName(blessLevel);
+    var bCls = getBlessTagClass(blessLevel);
+    html += '<div class="damage-row"><span class="dmg-tag ' + bCls + '">Blessure B' + blessLevel + ' — ' + bName + '</span>';
+    var wKey = 'woundB' + blessLevel;
+    if (NARR[wKey]) {
+      var wNarr = narr(wKey, { victim: defender.name, weapon: weaponLabel(attacker.weapon) });
+      html += '<span class="dmg-desc">' + wNarr + '</span>';
+      state._narrativeLines.push(wNarr);
+    }
+    html += '</div>';
+  }
+  if (chocLevel === 0 && blessLevel === 0) {
+    html += '<div class="damage-row"><span class="dmg-tag tag-rien">Protection totale</span><span class="dmg-desc">La protection absorbe tous les dégâts.</span></div>';
+  }
+
+  if (blessLevel > 0) {
+    html += '<div class="enc-section" id="enc-' + pref + '">';
+    html += '<h3>&#127922; Encaissement — ' + esc(defender.name) + '</h3>';
+    html += '<div class="enc-entry-victim"><strong>' + esc(defender.name) + '</strong> encaisse le coup. Lancez un jet de FOR.</div>';
+    html += '<div class="enc-dice-instruction">' + getForInstruction(defender.forStat) + ' (FOR ' + (defender.forStat >= 0 ? '+' : '') + defender.forStat + ')</div>';
+    html += '<div style="margin-top:8px;"><input type="number" class="enc-score-input" id="enc-score-' + pref + '" min="2" max="12" placeholder="?" oninput="checkEncReady(\'' + pref + '\')">';
+    html += '<span style="font-family:\'Share Tech Mono\',monospace;font-size:11px;color:var(--text2);vertical-align:middle;">Score du jet de FOR</span></div>';
+    html += '<div style="text-align:center;margin-top:12px;"><button class="btn-resolve" id="btn-enc-' + pref + '" disabled onclick="applyEncaissement(\'' + pref + '\')">Appliquer</button></div>';
+    html += '</div>';
+    html += '</div>';
+    return { html: html, needsEnc: true };
+  }
+
+  html += '</div>';
+  return { html: html, needsEnc: false };
+}
+
+function checkEncReady(pref) {
+  var val = parseInt(document.getElementById('enc-score-' + pref).value);
+  var btn = document.getElementById('btn-enc-' + pref);
+  btn.disabled = isNaN(val) || val < 2 || val > 12;
+}
+
+function neutralBanner(text, size, color, bg) {
+  return '<div style="text-align:center;margin-top:12px;padding:16px;background:' + bg + ';border:2px solid ' + color + ';border-radius:4px;font-family:\'Cinzel\',serif;font-size:' + size + 'px;color:' + color + ';letter-spacing:0.15em;">' + text + '</div>';
+}
+
+function applyEncaissement(pref) {
+  var score = parseInt(document.getElementById('enc-score-' + pref).value);
+  var action = state._queue[state._gIndex][state._aIndex];
+  var defender = getCombatant(action.targetId);
+  var attacker = getCombatant(action.attackerId);
+
+  var modifier = 0, desc = '';
+  if (score >= 10) { modifier = -1; desc = narr('encReduce', { victim: defender.name }); }
+  else if (score >= 5) { modifier = 0; desc = narr('encNormal', { victim: defender.name }); }
+  else { modifier = 1; desc = narr('encAggrav', { victim: defender.name }); }
+
+  var finalBless = clamp(action._blessLevel + modifier, 0, 5);
+  state._narrativeLines.push(desc);
+  if (finalBless > 0) {
+    addWound(defender.wounds, finalBless);
+    defender.highestWoundLevel = computeHighestWound(defender.wounds);
+  }
+
+  var encEl = document.getElementById('enc-' + pref);
+  var r = '<h3>&#127922; Encaissement — Résultat</h3>';
+  r += '<div class="enc-entry-victim">Score de FOR : <strong>' + score + '</strong></div>';
+  if (modifier === -1) r += '<div style="color:#60d060;font-family:\'Share Tech Mono\',monospace;font-size:13px;margin:6px 0;">Résistance ! B' + action._blessLevel + ' → B' + finalBless + '</div>';
+  else if (modifier === 0) r += '<div style="color:var(--text2);font-family:\'Share Tech Mono\',monospace;font-size:13px;margin:6px 0;">Normal. B' + finalBless + ' inchangée.</div>';
+  else r += '<div style="color:var(--red2);font-family:\'Share Tech Mono\',monospace;font-size:13px;margin:6px 0;">Aggravation ! B' + action._blessLevel + ' → B' + finalBless + '</div>';
+  if (finalBless > 0) r += '<div style="margin-top:8px;"><span class="dmg-tag ' + getBlessTagClass(finalBless) + '">Blessure finale : B' + finalBless + ' ' + getBlessName(finalBless) + '</span></div>';
+  r += '<div class="wound-tracker" style="margin-top:10px;"><div class="wound-tracker-title">État des blessures de ' + esc(defender.name) + '</div><div class="wound-pips">' + renderWoundPips(defender.wounds) + '</div></div>';
+
+  if (defender.wounds[4] >= 2) {
+    r += neutralBanner('MORT', 18, '#ff4040', 'rgba(200,20,20,0.2)');
+    defender.isDown = true;
+  } else if (defender.wounds[4] >= 1) {
+    r += neutralBanner('AGONIE — sans soins immédiats, la mort est certaine', 16, '#ff4040', 'rgba(200,20,20,0.15)');
+    defender.isDown = true;
+    state._narrativeLines.push(narr('woundB5', { victim: defender.name, weapon: weaponLabel(attacker.weapon) }));
+  } else if (defender.wounds[3] >= 1) {
+    r += neutralBanner('HORS COMBAT', 16, '#dd5050', 'rgba(220,50,50,0.12)');
+    defender.isDown = true;
+    state._narrativeLines.push(narr('woundB4', { victim: defender.name, weapon: weaponLabel(attacker.weapon) }));
+  }
+
+  encEl.innerHTML = r;
+
+  state._aIndex++;
+  processNextAction();
+}
+
+// ============================================================
+// BILAN & FIN DE COMBAT
+// ============================================================
+
+function buildSummary() {
+  var container = document.getElementById('results-body');
+  var html = '';
+  html += '<div class="damage-section"><h3>Bilan du Round ' + state.round + '</h3>';
+  html += '<div class="results-columns">';
+  ['X', 'Y'].forEach(function(camp) {
+    state.combatants.filter(function(c) { return c.camp === camp; }).forEach(function(c) {
+      var cls = CAMPS[camp].cls;
+      html += '<div class="combatant-result ' + cls + '"><div class="cr-name">' + CAMPS[camp].icon + ' ' + esc(c.name) + '</div>';
+      html += '<div class="wound-tracker"><div class="wound-tracker-title">Blessures</div><div class="wound-pips">' + renderWoundPips(c.wounds) + '</div></div>';
+      if (c.isDown) html += '<div style="color:var(--red2);font-family:\'Cinzel\',serif;font-size:14px;text-align:center;margin-top:8px;letter-spacing:0.1em;">' + (c.wounds[4] >= 1 ? 'AGONIE / MORT' : 'HORS COMBAT') + '</div>';
+      html += '</div>';
+    });
+  });
+  html += '</div>';
+
+  var xDef = campDefeated('X'), yDef = campDefeated('Y');
+  if (!xDef && !yDef) state._narrativeLines.push(narr('roundEnd', { n: '' + state.round }));
+
+  html += '<div class="combat-log"><div class="log-title">&#9889; Narration</div>';
+  state._narrativeLines.forEach(function(line) { html += '<div class="log-entry"><em>' + line + '</em></div>'; });
+  html += '</div>';
+
+  if (xDef || yDef) {
+    state.combatOver = true;
+    state.winningCamp = xDef ? 'Y' : 'X';
+    html += '<div class="combat-end-banner"><h2>Combat Terminé</h2>';
+    html += '<p><strong>' + CAMPS[state.winningCamp].label + '</strong> l\'emporte.</p></div>';
+    html += '<div style="text-align:center;margin-top:20px;"><button class="btn-launch" onclick="backToSetup()">&#9876; Nouveau Combat</button></div>';
+  } else {
+    html += '<div style="text-align:center;margin-top:20px;"><button class="btn-launch" onclick="nextRound()">Round Suivant &#8594;</button></div>';
+  }
+
+  html += '</div>';
+  container.insertAdjacentHTML('beforeend', html);
+}
+
+function nextRound() {
+  state.combatants.forEach(function(c) {
+    c.prevWeapon = c.weapon;
+    c.weaponChanged = false;
+    c.highestWoundLevel = computeHighestWound(c.wounds);
+  });
+  goToRound();
+}
+
+// ============================================================
+// INIT
 // ============================================================
 
 document.addEventListener('DOMContentLoaded', function() {
-  // Posture buttons already have onclick handlers
-  // Update NDs when cmb changes
-  ['cfg-a-cmb', 'cfg-d-cmb', 'cfg-a-for', 'cfg-d-for', 'cfg-a-nm', 'cfg-d-nm'].forEach(function(id) {
-    var el = document.getElementById(id);
-    if (el) el.addEventListener('input', updateNDs);
-  });
+  // un slot vide par camp au démarrage
+  addSlot('X');
+  addSlot('Y');
+  // délégation : un changement de CMB recalcule ND / indice de dés
+  var grid = document.getElementById('cards-grid');
+  if (grid) {
+    grid.addEventListener('input', function(e) {
+      if (e.target && /-cmb$/.test(e.target.id)) updateNDs();
+    });
+  }
 });
+
 </script>
 
 </body>
