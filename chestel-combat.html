@@ -1243,6 +1243,10 @@
     background: var(--bg2); border: 1px solid var(--border); border-radius: 3px; color: var(--text);
     font-family: inherit; font-size: 15px; padding: 6px 8px; width: 100%; -moz-appearance: textfield;
   }
+  .slot-field {
+    display: flex; flex-direction: column; gap: 4px; margin-top: 8px;
+    font-family: 'Share Tech Mono', monospace; font-size: 10px; letter-spacing: 0.1em; color: var(--text2);
+  }
   .card-tohit-wrap { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
   .card-tohit-wrap .dice-score-label { margin-bottom: 6px; }
   .card-tohit-wrap .dice-score-input { width: 100%; }
@@ -1265,6 +1269,11 @@
   .action-skip {
     padding: 10px 14px; border: 1px solid var(--border); border-radius: 6px;
     color: var(--text2); font-family: 'Share Tech Mono', monospace; font-size: 13px; margin: 8px 0;
+  }
+  .action-narr {
+    font-family: 'Crimson Text', Georgia, serif; font-style: italic; font-size: 15px;
+    color: var(--text); margin: 6px 0 12px; line-height: 1.5;
+    padding-left: 10px; border-left: 2px solid var(--gold);
   }
   .tips-block { margin: -2px 0 14px; }
   .tips-toggle {
@@ -1587,14 +1596,28 @@ var NARR = {
     "Dans un élan désespéré, [attacker] frappe avec [weapon]. Le coup porte !",
     "[defender] n'a pas le temps de réagir. [weapon] le touche de plein fouet.",
     "À travers le brouillard de l'Intracos, [weapon] trouve sa cible avec une précision chirurgicale.",
-    "[attacker] profite d'une ouverture et abat [weapon] sans hésiter."
+    "[attacker] profite d'une ouverture et abat [weapon] sans hésiter.",
+    "[attacker] frappe avec [weapon] ; le coup claque dans le silence cotonneux de l'intracos.",
+    "Le brouillard avale le geste de [attacker], mais [weapon] trouve [defender] sans faillir.",
+    "[attacker] vise une faille et y plante [weapon] — [defender] encaisse.",
+    "Un pas, une rotation des hanches : [weapon] s'abat sur [defender] dans un bruit mat.",
+    "[attacker] ne tremble pas : [weapon] cueille [defender] en plein élan.",
+    "Le coup part bas, remonte, et [weapon] mord [defender].",
+    "[defender] anticipe trop tard ; [weapon] s'enfonce là où il faut.",
+    "Sec et précis, [attacker] place [weapon] : [defender] accuse le coup.",
+    "[attacker] souffle, ajuste, et [weapon] s'invite sous la garde de [defender].",
+    "Le décor vacille une seconde — assez pour que [weapon] frappe [defender] de plein fouet."
   ],
   attackHitExceptional: [
     "MAGISTRAL ! [attacker] porte un coup d'une violence extraordinaire avec [weapon] !",
     "[attacker] frappe avec [weapon] d'une manière qui défie les lois de l'Intracos. Coup exceptionnel !",
     "Un coup parfait ! [weapon] atteint [defender] exactement là où ça fait le plus mal.",
     "Les Soigneurs n'en croient pas leurs yeux. [weapon] frappe avec une puissance inouïe !",
-    "[attacker] canalise toute sa rage dans [weapon]. Le résultat est dévastateur."
+    "[attacker] canalise toute sa rage dans [weapon]. Le résultat est dévastateur.",
+    "Tout s'aligne — distance, tempo, rage — et [weapon] dévaste [defender] d'un seul geste parfait.",
+    "[attacker] frappe comme si l'intracos guidait [weapon] : [defender] ne s'en relèvera pas indemne.",
+    "Un éclair — [weapon] traverse la garde de [defender] et inscrit la douleur jusqu'à l'os.",
+    "Le coup de [attacker] défie toute logique : [weapon] cueille [defender] au point exact de rupture."
   ],
 
   // === ATTAQUES RATÉES (génériques + par contexte) ===
@@ -1610,7 +1633,12 @@ var NARR = {
     "[defender] se décale au dernier instant. [weapon] ne fait qu'effleurer l'air.",
     "Un éclair de lucidité de [defender] — l'attaque de [attacker] ne touche que le néant.",
     "[attacker] frappe trop haut. [weapon] passe au-dessus de [defender].",
-    "La fatigue se fait sentir. [attacker] rate son coup avec [weapon]."
+    "La fatigue se fait sentir. [attacker] rate son coup avec [weapon].",
+    "Le brouillard joue des tours : [weapon] ne rencontre que le vide.",
+    "[defender] n'est déjà plus là ; [weapon] fend l'air humide.",
+    "[attacker] hésite une fraction de seconde — [weapon] manque [defender] de peu.",
+    "Un faux appui, et le coup de [weapon] se perd dans la pénombre.",
+    "L'intracos semble dévier la trajectoire : [weapon] frôle [defender] sans le toucher."
   ],
 
   // === BLESSURES (enrichies, avec contexte arme) ===
@@ -1964,6 +1992,14 @@ var CREATURE_OPTIONS =
   '<option value="abstract-daddy">Abstract Daddy (Idéal du Père)</option>' +
   '<option value="pyramid-head">Pyramid Head (Le Bourreau)</option>';
 
+var PROTECTION_OPTIONS =
+  '<option value="0|0">Aucune</option>' +
+  '<option value="0|1">Blouson de cuir — R1</option>' +
+  '<option value="1|1">Manteau de fourrure — R1 A1</option>' +
+  '<option value="0|2">Cotte de maille — R2</option>' +
+  '<option value="1|3">Gilet pare-balle — R3 A1</option>' +
+  '<option value="1|2">Casque intégral — R2 A1</option>';
+
 function addSlot(camp) {
   setupRoster[camp].push({ key: null });
   renderRoster(camp);
@@ -1986,42 +2022,51 @@ function renderRoster(camp) {
   var list = document.getElementById('roster-' + camp);
   var html = '';
   setupRoster[camp].forEach(function(slot, i) {
+    var p = camp + '-' + i;
+    var oi = 'oninput="onSlotField(\'' + camp + '\',' + i + ')"';
+    var oc = 'onchange="onSlotField(\'' + camp + '\',' + i + ')"';
     var extra = '';
     if (slot.key === 'joueur') {
-      extra = '<input type="text" class="setup-select" id="slotname-' + camp + '-' + i + '" placeholder="Nom du joueur" oninput="onSlotName(\'' + camp + '\',' + i + ')" style="margin-top:8px;">' +
-        '<div class="roster-stats">' +
-          '<label>CMB<input type="number" id="slotcmb-' + camp + '-' + i + '" min="-2" max="2" value="0" oninput="onSlotStat(\'' + camp + '\',' + i + ')"></label>' +
-          '<label>FOR<input type="number" id="slotfor-' + camp + '-' + i + '" min="-2" max="2" value="0" oninput="onSlotStat(\'' + camp + '\',' + i + ')"></label>' +
-          '<label>NM<input type="number" id="slotnm-' + camp + '-' + i + '" min="0" max="9" value="0" oninput="onSlotStat(\'' + camp + '\',' + i + ')"></label>' +
+      extra += '<input type="text" class="setup-select" id="slotname-' + p + '" placeholder="Nom du joueur" ' + oi + ' style="margin-top:8px;">';
+      extra += '<div class="roster-stats">' +
+          '<label>CMB<input type="number" id="slotcmb-' + p + '" min="-2" max="2" value="0" ' + oi + '></label>' +
+          '<label>FOR<input type="number" id="slotfor-' + p + '" min="-2" max="2" value="0" ' + oi + '></label>' +
+          '<label>NM<input type="number" id="slotnm-' + p + '" min="0" max="9" value="0" ' + oi + '></label>' +
         '</div>';
+      extra += '<label class="slot-field">Arme<select class="setup-select" id="slotwpn-' + p + '" ' + oc + '>' + STANDARD_WEAPON_OPTIONS + '</select></label>';
+      extra += '<label class="slot-field">Protection<select class="setup-select" id="slotprot-' + p + '" ' + oc + '>' + PROTECTION_OPTIONS + '</select></label>';
     }
     html += '<div class="roster-row"><div class="roster-main">' +
-            '<select class="setup-select" id="slot-' + camp + '-' + i + '" onchange="onSlotSelect(\'' + camp + '\',' + i + ')">' + CREATURE_OPTIONS + '</select>' +
+            '<select class="setup-select" id="slot-' + p + '" onchange="onSlotSelect(\'' + camp + '\',' + i + ')">' + CREATURE_OPTIONS + '</select>' +
             extra +
             '</div><button class="roster-remove" onclick="removeSlot(\'' + camp + '\',' + i + ')" title="Retirer">&times;</button></div>';
   });
   list.innerHTML = html;
   // restaurer les valeurs saisies (innerHTML les réinitialise)
   setupRoster[camp].forEach(function(slot, i) {
-    if (slot.key) document.getElementById('slot-' + camp + '-' + i).value = slot.key;
+    var p = camp + '-' + i;
+    if (slot.key) document.getElementById('slot-' + p).value = slot.key;
     if (slot.key === 'joueur') {
-      if (slot.name) document.getElementById('slotname-' + camp + '-' + i).value = slot.name;
-      document.getElementById('slotcmb-' + camp + '-' + i).value = (slot.cmb != null ? slot.cmb : 0);
-      document.getElementById('slotfor-' + camp + '-' + i).value = (slot.forStat != null ? slot.forStat : 0);
-      document.getElementById('slotnm-' + camp + '-' + i).value = (slot.nm != null ? slot.nm : 0);
+      if (slot.name) document.getElementById('slotname-' + p).value = slot.name;
+      document.getElementById('slotcmb-' + p).value = (slot.cmb != null ? slot.cmb : 0);
+      document.getElementById('slotfor-' + p).value = (slot.forStat != null ? slot.forStat : 0);
+      document.getElementById('slotnm-' + p).value = (slot.nm != null ? slot.nm : 0);
+      if (slot.weapon) document.getElementById('slotwpn-' + p).value = slot.weapon;
+      if (slot.protection) document.getElementById('slotprot-' + p).value = slot.protection;
     }
   });
 }
 
-function onSlotName(camp, i) {
-  setupRoster[camp][i].name = document.getElementById('slotname-' + camp + '-' + i).value;
-}
-
-function onSlotStat(camp, i) {
+function onSlotField(camp, i) {
   var s = setupRoster[camp][i];
-  s.cmb = parseInt(document.getElementById('slotcmb-' + camp + '-' + i).value) || 0;
-  s.forStat = parseInt(document.getElementById('slotfor-' + camp + '-' + i).value) || 0;
-  s.nm = parseInt(document.getElementById('slotnm-' + camp + '-' + i).value) || 0;
+  var p = camp + '-' + i;
+  var el;
+  if ((el = document.getElementById('slotname-' + p))) s.name = el.value;
+  if ((el = document.getElementById('slotcmb-' + p))) s.cmb = parseInt(el.value) || 0;
+  if ((el = document.getElementById('slotfor-' + p))) s.forStat = parseInt(el.value) || 0;
+  if ((el = document.getElementById('slotnm-' + p))) s.nm = parseInt(el.value) || 0;
+  if ((el = document.getElementById('slotwpn-' + p))) s.weapon = el.value;
+  if ((el = document.getElementById('slotprot-' + p))) s.protection = el.value;
 }
 
 function updateLaunchBtn() {
@@ -2045,6 +2090,8 @@ function initCombatant(camp, key, indexInCamp, slot) {
     o.cmb = clamp(parseInt(slot && slot.cmb) || 0, -2, 2);
     o.forStat = clamp(parseInt(slot && slot.forStat) || 0, -2, 2);
     o.nm = clamp(parseInt(slot && slot.nm) || 0, 0, 9);
+    o.weapon = (slot && slot.weapon) || 'poing-moyen';
+    o.protection = (slot && slot.protection) || '0|0';
   } else if (CREATURES[key]) {
     var c = CREATURES[key];
     o.isCreature = true; o.creatureKey = key;
@@ -2428,6 +2475,7 @@ function buildScoresTable(actions) {
     } else {
       var tgt = getCombatant(a.targetId);
       h += '<div class="score-row"><span>Cible</span><span class="val">' + esc(tgt ? tgt.name : '—') + '</span></div>';
+      h += '<div class="score-row"><span>Attaque</span><span class="val">' + esc(WEAPON_DATA[c.weapon] ? WEAPON_DATA[c.weapon].label : c.weapon) + '</span></div>';
       h += '<div class="score-row"><span>Dés</span><span class="val">' + a.raw + '</span></div>';
       if (a.score !== a.raw && !a.isCat) h += '<div class="score-row"><span>NM ' + c.nm + '</span><span class="val" style="color:var(--gold2);">Score → ' + a.score + '</span></div>';
       if (a.autoFail) h += '<div class="score-row"><span>Blessure (niv. ' + c.highestWoundLevel + ')</span><span class="val" style="color:var(--red2);">Score ' + a.score + ' ≤ ' + c.highestWoundLevel + ' → Échec auto</span></div>';
@@ -2437,7 +2485,18 @@ function buildScoresTable(actions) {
     h += '</div>';
   });
   h += '</div></div></div>';
-  return h;
+  return '<button type="button" class="details-toggle" onclick="toggleScores()">&#9656; Scores &amp; Facteurs de Réussite (détail technique)</button>' +
+         '<div class="hidden" id="scores-panel">' + h + '</div>';
+}
+
+function toggleScores() {
+  var d = document.getElementById('scores-panel');
+  if (!d) return;
+  var hidden = d.classList.toggle('hidden');
+  var btn = d.previousElementSibling;
+  if (btn && btn.classList.contains('details-toggle')) {
+    btn.innerHTML = (hidden ? '&#9656;' : '&#9662;') + ' Scores &amp; Facteurs de Réussite (détail technique)';
+  }
 }
 
 function buildInitiativeBanner(groups) {
@@ -2492,11 +2551,6 @@ function processNextAction() {
 
   var res = buildDamageSection(action);
   container.insertAdjacentHTML('beforeend', res.html);
-  if (res.needsEnc) {
-    var encInp = document.getElementById('enc-score-' + action.attackerId);
-    if (encInp) encInp.focus();
-    return; // attend applyEncaissement
-  }
   state._aIndex++; processNextAction();
 }
 
@@ -2534,7 +2588,9 @@ function buildDamageSection(action) {
   action._chocLevel = chocLevel;
 
   html += '<div class="damage-section"><h3>' + esc(attacker.name) + ' &#8594; ' + esc(defender.name) + '</h3>';
-  state._narrativeLines.push(narr(action.fr > 4 ? 'attackHitExceptional' : 'attackHit', { attacker: attacker.name, defender: defender.name, weapon: weaponLabel(attacker.weapon) }));
+  var hitNarr = narr(action.fr > 4 ? 'attackHitExceptional' : 'attackHit', { attacker: attacker.name, defender: defender.name, weapon: weaponLabel(attacker.weapon) });
+  html += '<div class="action-narr">' + hitNarr + '</div>';
+  state._narrativeLines.push(hitNarr);
 
   if (chocLevel > 0) {
     var ci = Math.min(chocLevel, 4);
@@ -2557,56 +2613,49 @@ function buildDamageSection(action) {
   }
 
   if (blessLevel > 0) {
-    html += '<div class="enc-section" id="enc-' + pref + '">';
-    html += '<h3>&#127922; Encaissement — ' + esc(defender.name) + '</h3>';
-    html += '<div class="enc-entry-victim"><strong>' + esc(defender.name) + '</strong> encaisse le coup. Lancez un jet de FOR.</div>';
-    html += '<div class="enc-dice-instruction">' + getForInstruction(defender.forStat) + ' (FOR ' + (defender.forStat >= 0 ? '+' : '') + defender.forStat + ')</div>';
-    html += '<div style="margin-top:8px;"><input type="number" class="enc-score-input" id="enc-score-' + pref + '" min="2" max="12" placeholder="?" oninput="checkEncReady(\'' + pref + '\')" onkeydown="if(event.key===\'Enter\'){var b=document.getElementById(\'btn-enc-' + pref + '\');if(b&&!b.disabled)b.click();}">';
-    html += '<span style="font-family:\'Share Tech Mono\',monospace;font-size:11px;color:var(--text2);vertical-align:middle;">Score du jet de FOR</span></div>';
-    html += '<div style="text-align:center;margin-top:12px;"><button class="btn-resolve" id="btn-enc-' + pref + '" disabled onclick="applyEncaissement(\'' + pref + '\')">Appliquer</button></div>';
-    html += '</div>';
-    html += '</div>';
-    return { html: html, needsEnc: true };
+    html += resolveEncaissementHTML(action, attacker, defender, blessLevel);
   }
 
   html += '</div>';
   return { html: html, needsEnc: false };
 }
 
-function checkEncReady(pref) {
-  var val = parseInt(document.getElementById('enc-score-' + pref).value);
-  var btn = document.getElementById('btn-enc-' + pref);
-  btn.disabled = isNaN(val) || val < 2 || val > 12;
+// Jet de dés selon un niveau (FOR, sauvegarde) : règle Chestel — 2D6 modulés par le niveau.
+function rollDice(level) {
+  function d6() { return 1 + Math.floor(Math.random() * 6); }
+  var n = (level === 0) ? 2 : (Math.abs(level) === 1 ? 3 : 4);
+  var rolls = [];
+  for (var i = 0; i < n; i++) rolls.push(d6());
+  rolls.sort(function(a, b) { return a - b; });
+  var kept = (level >= 1) ? rolls.slice(-2) : (level <= -1) ? rolls.slice(0, 2) : rolls;
+  return kept[0] + kept[1];
 }
 
 function neutralBanner(text, size, color, bg) {
   return '<div style="text-align:center;margin-top:12px;padding:16px;background:' + bg + ';border:2px solid ' + color + ';border-radius:4px;font-family:\'Cinzel\',serif;font-size:' + size + 'px;color:' + color + ';letter-spacing:0.15em;">' + text + '</div>';
 }
 
-function applyEncaissement(pref) {
-  var score = parseInt(document.getElementById('enc-score-' + pref).value);
-  var action = state._queue[state._gIndex][state._aIndex];
-  var defender = getCombatant(action.targetId);
-  var attacker = getCombatant(action.attackerId);
+// Encaissement AUTOMATIQUE : l'app lance le jet de FOR de la victime et applique le résultat (plus de saisie).
+function resolveEncaissementHTML(action, attacker, defender, blessLevel) {
+  var score = rollDice(defender.forStat);
 
   var modifier = 0, desc = '';
   if (score >= 10) { modifier = -1; desc = narr('encReduce', { victim: defender.name }); }
   else if (score >= 5) { modifier = 0; desc = narr('encNormal', { victim: defender.name }); }
   else { modifier = 1; desc = narr('encAggrav', { victim: defender.name }); }
 
-  var finalBless = clamp(action._blessLevel + modifier, 0, 5);
+  var finalBless = clamp(blessLevel + modifier, 0, 5);
   state._narrativeLines.push(desc);
   if (finalBless > 0) {
     addWound(defender.wounds, finalBless);
     defender.highestWoundLevel = computeHighestWound(defender.wounds);
   }
 
-  var encEl = document.getElementById('enc-' + pref);
-  var r = '<h3>&#127922; Encaissement — Résultat</h3>';
-  r += '<div class="enc-entry-victim">Score de FOR : <strong>' + score + '</strong></div>';
-  if (modifier === -1) r += '<div style="color:#60d060;font-family:\'Share Tech Mono\',monospace;font-size:13px;margin:6px 0;">Résistance ! B' + action._blessLevel + ' → B' + finalBless + '</div>';
+  var r = '<div class="enc-section"><h3>&#127922; Encaissement de ' + esc(defender.name) + '</h3>';
+  r += '<div class="enc-entry-victim">Jet de FOR (auto) : <strong>' + score + '</strong> (FOR ' + (defender.forStat >= 0 ? '+' : '') + defender.forStat + ')</div>';
+  if (modifier === -1) r += '<div style="color:#60d060;font-family:\'Share Tech Mono\',monospace;font-size:13px;margin:6px 0;">Résistance ! B' + blessLevel + ' → B' + finalBless + '</div>';
   else if (modifier === 0) r += '<div style="color:var(--text2);font-family:\'Share Tech Mono\',monospace;font-size:13px;margin:6px 0;">Normal. B' + finalBless + ' inchangée.</div>';
-  else r += '<div style="color:var(--red2);font-family:\'Share Tech Mono\',monospace;font-size:13px;margin:6px 0;">Aggravation ! B' + action._blessLevel + ' → B' + finalBless + '</div>';
+  else r += '<div style="color:var(--red2);font-family:\'Share Tech Mono\',monospace;font-size:13px;margin:6px 0;">Aggravation ! B' + blessLevel + ' → B' + finalBless + '</div>';
   if (finalBless > 0) r += '<div style="margin-top:8px;"><span class="dmg-tag ' + getBlessTagClass(finalBless) + '">Blessure finale : B' + finalBless + ' ' + getBlessName(finalBless) + '</span></div>';
   r += '<div class="wound-tracker" style="margin-top:10px;"><div class="wound-tracker-title">État des blessures de ' + esc(defender.name) + '</div><div class="wound-pips">' + renderWoundPips(defender.wounds) + '</div></div>';
 
@@ -2622,11 +2671,8 @@ function applyEncaissement(pref) {
     defender.isDown = true;
     state._narrativeLines.push(narr('woundB4', { victim: defender.name, weapon: weaponLabel(attacker.weapon) }));
   }
-
-  encEl.innerHTML = r;
-
-  state._aIndex++;
-  processNextAction();
+  r += '</div>';
+  return r;
 }
 
 // ============================================================
