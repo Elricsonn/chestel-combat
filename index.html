@@ -1962,15 +1962,24 @@ function renderRoster(camp) {
   var list = document.getElementById('roster-' + camp);
   var html = '';
   setupRoster[camp].forEach(function(slot, i) {
+    var nameInput = (slot.key === 'joueur')
+      ? '<input type="text" class="setup-select" id="slotname-' + camp + '-' + i + '" placeholder="Nom du joueur" oninput="onSlotName(\'' + camp + '\',' + i + ')" style="margin-top:8px;">'
+      : '';
     html += '<div class="roster-row"><div class="roster-main">' +
             '<select class="setup-select" id="slot-' + camp + '-' + i + '" onchange="onSlotSelect(\'' + camp + '\',' + i + ')">' + CREATURE_OPTIONS + '</select>' +
+            nameInput +
             '</div><button class="roster-remove" onclick="removeSlot(\'' + camp + '\',' + i + ')" title="Retirer">&times;</button></div>';
   });
   list.innerHTML = html;
   // restaurer les valeurs choisies (innerHTML les réinitialise)
   setupRoster[camp].forEach(function(slot, i) {
     if (slot.key) document.getElementById('slot-' + camp + '-' + i).value = slot.key;
+    if (slot.key === 'joueur' && slot.name) document.getElementById('slotname-' + camp + '-' + i).value = slot.name;
   });
+}
+
+function onSlotName(camp, i) {
+  setupRoster[camp][i].name = document.getElementById('slotname-' + camp + '-' + i).value;
 }
 
 function updateLaunchBtn() {
@@ -1979,7 +1988,7 @@ function updateLaunchBtn() {
   document.getElementById('btn-launch').disabled = !(okX && okY);
 }
 
-function initCombatant(camp, key, indexInCamp) {
+function initCombatant(camp, key, indexInCamp, name) {
   var o = {
     id: 'c' + (state._idSeq++),
     camp: camp,
@@ -1990,7 +1999,7 @@ function initCombatant(camp, key, indexInCamp) {
     isCreature: false, creatureKey: null
   };
   if (key === 'joueur') {
-    o.name = camp + (indexInCamp + 1); // X1, Y2… éditable au round
+    o.name = (name && name.trim()) ? name.trim() : (camp + (indexInCamp + 1)); // nom saisi au setup, ou X1/Y2 par défaut
   } else if (CREATURES[key]) {
     var c = CREATURES[key];
     o.isCreature = true; o.creatureKey = key;
@@ -2012,8 +2021,19 @@ function launchCombat() {
   ['X', 'Y'].forEach(function(camp) {
     var n = 0;
     setupRoster[camp].forEach(function(slot) {
-      if (slot.key) { state.combatants.push(initCombatant(camp, slot.key, n)); n++; }
+      if (slot.key) { state.combatants.push(initCombatant(camp, slot.key, n, slot.name)); n++; }
     });
+  });
+
+  // numéroter les créatures en plusieurs exemplaires (même type) : "1 - …", "2 - …"
+  var counts = {};
+  state.combatants.forEach(function(c) { if (c.isCreature) counts[c.creatureKey] = (counts[c.creatureKey] || 0) + 1; });
+  var seen = {};
+  state.combatants.forEach(function(c) {
+    if (c.isCreature && counts[c.creatureKey] > 1) {
+      seen[c.creatureKey] = (seen[c.creatureKey] || 0) + 1;
+      c.name = seen[c.creatureKey] + ' - ' + c.name;
+    }
   });
 
   assignDefaultTargets();
